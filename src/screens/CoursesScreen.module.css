@@ -1,0 +1,450 @@
+/* CoursesScreen.module.css */
+
+.coursesContent {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  /* Header Section */
+  .headerSection {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    background: linear-gradient(135deg, var(--background-secondary) 0%, var(--background-tertiary) 100%);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+  }
+  
+  .headerLeft {
+    flex: 1;
+  }
+  
+  .pageTitle {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+  }
+  
+  .pageSubtitle {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+  
+  /* Stats Grid */
+  .statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .statCard {
+    background: var(--background-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: var(--transition-normal);
+  }
+  
+  .statCard:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .statIcon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .statIconSvg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  
+  .statContent {
+    flex: 1;
+  }
+  
+  .statTitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0 0 0.25rem 0;
+  }
+  
+  .statValue {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
+  
+  /* Color variants */
+  .textBlue400 { color: #60A5FA; }
+  .textGreen400 { color: #34D399; }
+  .textPurple400 { color: #A78BFA; }
+  .bgBlue400 { background-color: rgba(96, 165, 250, 0.1); }
+  .bgGreen400 { background-color: rgba(52, 211, 153, 0.1); }
+  .bgPurple400 { background-color: rgba(167, 139, 250, 0.1); }
+  
+  /* Controls Section */
+  .controlsSection {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--background-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+  
+  .controlsLeft {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .controlsRight {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .filterGroup, .sortGroup {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+  }
+  
+  .select {
+    padding: 0.5rem 0.75rem;
+    background: var(--background-tertiary);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  
+  .select:focus {
+    outline: none;
+    border-color: var(--primary-yellow);
+    box-shadow: 0 0 0 3px rgba(240, 185, 11, 0.1);
+  }
+  
+  .searchContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .searchIcon {
+    position: absolute;
+    left: 0.75rem;
+    color: var(--text-tertiary);
+    pointer-events: none;
+  }
+  
+  .searchInput {
+    padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+    background: var(--background-tertiary);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    min-width: 250px;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  
+  .searchInput::placeholder {
+    color: var(--text-tertiary);
+  }
+  
+  /* Courses Section */
+  .coursesSection {
+    background: var(--background-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+  }
+  
+  .sectionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+  
+  .sectionControls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .sectionCount {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    background: var(--background-tertiary);
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+  }
+  
+  .viewToggle {
+    display: flex;
+    background: var(--background-tertiary);
+    border-radius: var(--radius-md);
+    padding: 0.25rem;
+    gap: 0.25rem;
+  }
+  
+  .viewButton {
+    padding: 0.5rem;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .viewButton:hover {
+    color: var(--text-primary);
+  }
+  
+  .viewButton.active {
+    background: var(--primary-yellow);
+    color: var(--background-primary);
+  }
+  
+  /* Courses Grid */
+  .coursesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .coursesList {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  /* Loading State */
+  .loadingState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+  }
+  
+  .loadingSpinner {
+    width: 3rem;
+    height: 3rem;
+    border: 3px solid var(--border-secondary);
+    border-top: 3px solid var(--primary-yellow);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Empty State */
+  .emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+  }
+  
+  .emptyIcon {
+    color: var(--text-tertiary);
+    margin-bottom: 1.5rem;
+  }
+  
+  .emptyState h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+  }
+  
+  .emptyState p {
+    color: var(--text-secondary);
+    margin: 0 0 2rem 0;
+    font-size: 1.125rem;
+  }
+  
+  .createButton {
+    margin-top: 1rem;
+  }
+  
+  /* Modal Styles */
+  .modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 1rem;
+  }
+  
+  .modalContent {
+    background: var(--background-elevated);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-xl);
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-xl);
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .coursesContent {
+      padding: 1rem;
+      gap: 1.5rem;
+    }
+  
+    .headerSection {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1.5rem;
+      text-align: center;
+    }
+  
+    .controlsSection {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+    }
+  
+    .controlsLeft, .controlsRight {
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  
+    .coursesGrid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  
+    .statsGrid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .coursesContent {
+      padding: 0.75rem;
+      gap: 1rem;
+    }
+  
+    .pageTitle {
+      font-size: 1.75rem;
+    }
+  
+    .pageSubtitle {
+      font-size: 1rem;
+    }
+  
+    .headerSection {
+      padding: 1.5rem;
+    }
+  
+    .controlsSection {
+      padding: 1rem;
+    }
+  
+    .controlsLeft {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .searchInput {
+      min-width: auto;
+    }
+  
+    .sectionHeader {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+    }
+  
+    .sectionControls {
+      justify-content: space-between;
+    }
+  
+    .coursesSection {
+      padding: 1rem;
+    }
+  
+    .statsGrid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+  
+    .statCard {
+      padding: 1rem;
+    }
+  
+    .statValue {
+      font-size: 1.5rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .pageTitle {
+      font-size: 1.5rem;
+    }
+  
+    .emptyState h3 {
+      font-size: 1.25rem;
+    }
+  
+    .emptyState p {
+      font-size: 1rem;
+    }
+  
+    .filterGroup, .sortGroup {
+      flex-direction: column;
+      text-align: center;
+      gap: 0.25rem;
+    }
+  }

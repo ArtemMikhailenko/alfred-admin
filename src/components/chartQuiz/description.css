@@ -1,0 +1,56 @@
+.lesson-html-web {
+  width: 92%;
+  max-height: calc(100vh - 500px);
+}
+
+.lesson-html-web-scroll {
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.lesson-html-web p {
+  font-size: 16px;
+  line-height: 24px;
+  color: white;
+  margin-bottom: 12px;
+}
+
+.lesson-html-web strong {
+  font-weight: bold;
+  color: white;
+  font-size: 16px;
+}
+
+.lesson-html-web ol {
+  padding-left: 20px;
+  color: white;
+  font-size: 16px;
+}
+
+.lesson-html-web ul {
+  color: white;
+  font-size: 16px;
+}
+
+.lesson-html-web li {
+  margin-bottom: 6px;
+  color: white;
+  font-size: 16px;
+}
+
+.lesson-html-web .custom-block {
+  background-color: #444444; /* match colors.greyhard */
+  color: white;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.lesson-html-web .touch-text {
+  color: yellow;
+  font-weight: bold;
+  text-decoration: underline;
+  cursor: pointer;
+}

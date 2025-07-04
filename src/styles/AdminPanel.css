@@ -1,0 +1,112 @@
+@import './colors.css';
+
+.admin-container {
+  padding: 20px;
+  background-color: var(--bg);
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: start;
+  background-color: var(--modal-grey);
+  height: 50px;
+  border-radius: 10px;
+  padding: 5px;
+  box-sizing: border-box;
+  gap: 10px;
+}
+
+.yellow-button {
+  padding: 0px 20px;
+  height: 100%;
+  background-color: var(--yellow);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--black);
+}
+
+.lesson-list {
+  margin-top: 20px;
+}
+
+.lesson-item {
+  background-color: var(--modal-grey);
+  padding: 10px;
+  box-sizing: border-box;
+  height: 50px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  color: var(--white);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lesson-item button {
+  padding: 0px 20px;
+  height: 100%;
+  background-color: var(--yellow);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--black);
+}
+
+
+
+.modal-content {
+  background-color: var(--bg);
+  margin: auto;
+  padding: 10px;
+  height: 90%;
+  width: 90%;
+  box-sizing: border-box;
+  border-radius: 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.save-button {
+  padding: 0px 20px;
+  height: 30px;
+  background-color: var(--yellow);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--black);
+}
+
+.close-block {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+  gap: 10px;
+  height: 40px;
+  padding-bottom: 10px;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: var(--border);
+}
+
+.close-button {
+  padding: 0px 20px;
+  height: 100%;
+  background-color: var(--red);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--black);
+  align-self: flex-end;
+}

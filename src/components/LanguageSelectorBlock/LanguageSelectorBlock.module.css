@@ -1,0 +1,166 @@
+/* LanguageSelectorBlock.module.css */
+.languageSelector {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .languageTrigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--background-tertiary);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: var(--transition-normal);
+    font-size: 0.875rem;
+    min-width: 100px;
+  }
+  
+  .languageTrigger:hover {
+    background: var(--background-elevated);
+    border-color: var(--border-primary);
+  }
+  
+  .languageTrigger:focus {
+    outline: none;
+    border-color: var(--primary-yellow);
+    box-shadow: 0 0 0 3px rgba(240, 185, 11, 0.1);
+  }
+  
+  .languageFlag {
+    font-size: 1rem;
+    line-height: 1;
+  }
+  
+  .languageCode {
+    font-weight: 500;
+    flex: 1;
+    text-align: left;
+  }
+  
+  .languageChevron {
+    color: var(--text-secondary);
+    transition: var(--transition-fast);
+    flex-shrink: 0;
+  }
+  
+  .languageChevron.open {
+    transform: rotate(180deg);
+  }
+  
+  .languageDropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    min-width: 200px;
+    background: var(--background-elevated);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    z-index: 100;
+    overflow: hidden;
+    animation: dropdownSlide 0.2s ease-out;
+  }
+  
+  @keyframes dropdownSlide {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .languageOption {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    text-align: left;
+  }
+  
+  .languageOption:hover {
+    background: var(--background-tertiary);
+  }
+  
+  .languageOption.active {
+    background: rgba(240, 185, 11, 0.1);
+    color: var(--primary-yellow);
+  }
+  
+  .languageOption.active:hover {
+    background: rgba(240, 185, 11, 0.15);
+  }
+  
+  .languageInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    flex: 1;
+  }
+  
+  .languageName {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+  
+  .languageCodeSmall {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.2;
+  }
+  
+  .languageOption.active .languageName {
+    color: var(--primary-yellow);
+  }
+  
+  .languageOption.active .languageCodeSmall {
+    color: var(--primary-yellow);
+    opacity: 0.8;
+  }
+  
+  .languageCheck {
+    color: var(--primary-yellow);
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .languageDropdown {
+      right: auto;
+      left: 0;
+      min-width: 180px;
+    }
+    
+    .languageTrigger {
+      min-width: 80px;
+      padding: 0.5rem;
+    }
+    
+    .languageCode {
+      display: none;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .languageTrigger {
+      min-width: 60px;
+    }
+    
+    .languageTrigger svg:first-child {
+      display: none;
+    }
+  }
