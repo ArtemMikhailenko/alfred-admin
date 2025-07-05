@@ -9,15 +9,13 @@ import {
   Filter,
   SortDesc
 } from 'lucide-react'
-import { Course, Language } from '../constants/interfaces'
+import { Course, Language, Chapter, LessonWithLanguages } from '../constants/interfaces'
 import { GetCourses } from '../actions/actions'
 import { useSelector } from 'react-redux'
 import { RootState } from '../redux'
 import LanguageSelectorBlock from '../components/LanguageSelectorBlock'
 import CourseItem from '../components/course/CourseItem'
 import CreateCourseModal from '../components/course/CreateCourseModal'
-import Button from '../components/Button'
-import Input from '../components/Input'
 import toast from 'react-hot-toast'
 import styles from './CoursesScreen.module.css'
 
@@ -33,8 +31,11 @@ interface CoursesScreenProps {
 
 const CoursesScreen: React.FC<CoursesScreenProps> = ({
   searchTerm = '',
+  onSearchChange,
   language = 'ua',
-  viewMode = 'grid'
+  onLanguageChange,
+  viewMode = 'grid',
+  onViewModeChange
 }) => {
   const navigate = useNavigate()
   const tokens = useSelector((state: RootState) => state.tokens)
@@ -74,8 +75,19 @@ const CoursesScreen: React.FC<CoursesScreenProps> = ({
     // Apply filter
     if (filterBy !== 'all') {
       filtered = filtered.filter(course => {
-        // Assuming we have status field, otherwise always show
-        return true // Replace with actual filter logic
+        const hasContent = course.modules && course.modules.length > 0
+        const hasLessons = course.modules?.some((module: Chapter) => 
+          module.lessons && module.lessons.length > 0
+        )
+        
+        switch (filterBy) {
+          case 'active':
+            return hasContent && hasLessons
+          case 'draft':
+            return !hasContent || !hasLessons
+          default:
+            return true
+        }
       })
     }
 
@@ -127,7 +139,10 @@ const CoursesScreen: React.FC<CoursesScreenProps> = ({
     },
     {
       title: 'Published',
-      value: courses.length, // Replace with actual published count
+      value: courses.filter(course => 
+        course.modules && course.modules.length > 0 && 
+        course.modules.some((m: Chapter) => m.lessons && m.lessons.length > 0)
+      ).length,
       icon: BookOpen,
       colorClass: styles.textGreen400,
       bgClass: styles.bgGreen400
@@ -151,10 +166,10 @@ const CoursesScreen: React.FC<CoursesScreenProps> = ({
             Create, edit, and manage your trading courses
           </p>
         </div>
-        <Button onClick={handleCreateCourse} size="lg">
+        <button onClick={handleCreateCourse} className={styles.primaryButton}>
           <Plus size={20} />
           Create New Course
-        </Button>
+        </button>
       </div>
 
       {/* Stats Cards */}
@@ -209,10 +224,15 @@ const CoursesScreen: React.FC<CoursesScreenProps> = ({
               type="text"
               placeholder="Search courses..."
               value={searchTerm}
+              onChange={(e) => onSearchChange?.(e.target.value)}
               className={styles.searchInput}
-              readOnly
             />
           </div>
+          
+          <LanguageSelectorBlock 
+            language={language} 
+            setLanguage={onLanguageChange || (() => {})} 
+          />
         </div>
       </div>
 
@@ -225,13 +245,13 @@ const CoursesScreen: React.FC<CoursesScreenProps> = ({
             <div className={styles.viewToggle}>
               <button 
                 className={`${styles.viewButton} ${viewMode === 'grid' ? styles.active : ''}`}
-                onClick={() => {}}
+                onClick={() => onViewModeChange?.('grid')}
               >
                 <Grid size={16} />
               </button>
               <button 
                 className={`${styles.viewButton} ${viewMode === 'list' ? styles.active : ''}`}
-                onClick={() => {}}
+                onClick={() => onViewModeChange?.('list')}
               >
                 <List size={16} />
               </button>
@@ -265,10 +285,10 @@ const CoursesScreen: React.FC<CoursesScreenProps> = ({
                 : 'Start by creating your first course'
               }
             </p>
-            <Button onClick={handleCreateCourse} className={styles.createButton}>
+            <button onClick={handleCreateCourse} className={styles.createButton}>
               <Plus size={18} />
               Create First Course
-            </Button>
+            </button>
           </div>
         )}
       </div>

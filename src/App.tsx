@@ -7,8 +7,7 @@ import {
 } from 'react-router-dom'
 import { useState } from 'react'
 import LoginScreen from './screens/LoginScreen'
-
-import CourseScreen from './screens/CourseScreen'
+import CourseDetailScreen from './screens/CourseDetailScreen' // Детальный экран курса
 import { Provider } from 'react-redux'
 import { store } from './redux/store'
 import ChapterScreen from './screens/ChapterScreen'
@@ -62,16 +61,19 @@ const AppContent = () => {
           onViewModeChange={setViewMode}
         >
           <Routes>
+            {/* Главная страница админки - дашборд */}
             <Route
               path="/admin"
               element={<PrivateRoute element={<DashboardScreen />} />}
             />
+            
+            {/* Страница со списком всех курсов */}
             <Route
               path="/courses"
               element={
-                <PrivateRoute 
+                <PrivateRoute
                   element={
-                    <CoursesScreen 
+                    <CoursesScreen
                       searchTerm={searchTerm}
                       onSearchChange={setSearchTerm}
                       language={language}
@@ -79,23 +81,34 @@ const AppContent = () => {
                       viewMode={viewMode}
                       onViewModeChange={setViewMode}
                     />
-                  } 
+                  }
                 />
               }
             />
-            <Route
-              path="/swipetrade"
-              element={<PrivateRoute element={<SwipeTradeScreen />} />}
-            />
+            
+            {/* Страница конкретного курса с главами */}
             <Route
               path="/course/:courseId"
-              element={<PrivateRoute element={<CourseScreen />} />}
+              element={<PrivateRoute element={<CourseDetailScreen />} />}
             />
+            
+            {/* Страница конкретной главы с уроками */}
             <Route
               path="/chapter/:courseId/:chapterId"
               element={<PrivateRoute element={<ChapterScreen />} />}
             />
+            
+            {/* Swipe Trade */}
+            <Route
+              path="/swipetrade"
+              element={<PrivateRoute element={<SwipeTradeScreen />} />}
+            />
+            
+            {/* Login */}
             <Route path="/login" element={<LoginScreen />} />
+            
+            {/* Redirect to admin by default */}
+            <Route path="/" element={<Navigate to="/admin" />} />
             <Route path="*" element={<Navigate to="/admin" />} />
           </Routes>
         </MainLayout>
@@ -115,7 +128,6 @@ const AppContent = () => {
     </div>
   )
 }
-
 
 const App = () => {
   return (
