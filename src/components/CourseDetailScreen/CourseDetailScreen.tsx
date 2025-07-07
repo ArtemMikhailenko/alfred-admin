@@ -20,6 +20,7 @@ import {
 import { GetCourseById } from '../../actions/actions' // Импортируем API функцию
 import { Course, Chapter, Language, LessonWithLanguages } from '../../constants/interfaces'
 import styles from './CourseDetailScreen.module.css'
+import CreateChapterModal from '../chapter/CreateChapterModal'
 
 interface CourseDetailScreenProps {
   courseId?: string
@@ -69,7 +70,17 @@ const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({
   useEffect(() => {
     loadCourse()
   }, [courseId])
+  const handleCreateChapter = () => {
+    setShowCreateModal(true)
+  }
 
+  const handleCloseModal = (isUpdated: boolean) => {
+    setShowCreateModal(false)
+    // если новая глава создана, можно перезагрузить курс чтобы она сразу отобразилась
+    if (isUpdated) {
+      loadCourse()
+    }
+  }
   const handleChapterClick = (chapterId: number) => {
     if (onNavigateToChapter && courseId) {
       onNavigateToChapter(courseId, chapterId.toString())
@@ -78,9 +89,7 @@ const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({
     }
   }
 
-  const handleCreateChapter = () => {
-    setShowCreateModal(true)
-  }
+
 
   const handleBackToCourses = () => {
     if (onNavigateBack) {
@@ -505,33 +514,11 @@ const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({
 
       {/* Create Chapter Modal */}
       {showCreateModal && (
-        <div className={styles.modal}>
-          <div className={styles.modalContent}>
-            <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>Create New Chapter</h3>
-              <p className={styles.modalDescription}>Add a new chapter to your course</p>
-            </div>
-            
-            <div className={styles.modalActions}>
-              <button
-                onClick={() => setShowCreateModal(false)}
-                className={styles.modalSecondary}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  setShowCreateModal(false)
-                  // Здесь должна быть логика создания главы
-                  console.log('Creating new chapter...')
-                }}
-                className={styles.modalPrimary}
-              >
-                Create Chapter
-              </button>
-            </div>
-          </div>
-        </div>
+        <CreateChapterModal
+          courseId={Number(courseId)}              // строку в number
+          onClose={handleCloseModal}               // сбросить флаг и reload
+          courseName={course?.name[language] || ''} // опционально передать название
+        />
       )}
     </div>
   )
