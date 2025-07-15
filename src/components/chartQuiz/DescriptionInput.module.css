@@ -1,0 +1,135 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--greyhard);
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    overflow: hidden;
+  }
+  
+  .header {
+    padding: 20px;
+    border-bottom: 2px solid var(--border);
+    background-color: var(--bg);
+  }
+  
+  .title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--white);
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+  }
+  
+  .subtitle {
+    font-size: 14px;
+    color: var(--grey);
+    margin: 0;
+    font-weight: 500;
+  }
+  
+  .editorWrapper {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* TinyMCE customizations */
+  .editorWrapper :global(.tox) {
+    border: none !important;
+    border-radius: 0 !important;
+  }
+  
+  .editorWrapper :global(.tox-tinymce) {
+    border: none !important;
+    border-radius: 0 !important;
+  }
+  
+  .editorWrapper :global(.tox-editor-header) {
+    border-bottom: 2px solid var(--border) !important;
+    background-color: var(--bg) !important;
+  }
+  
+  .editorWrapper :global(.tox-toolbar) {
+    background-color: var(--bg) !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+  
+  .editorWrapper :global(.tox-toolbar__group) {
+    border-right: 1px solid var(--border) !important;
+  }
+  
+  .editorWrapper :global(.tox-tbtn) {
+    color: var(--grey) !important;
+    border-radius: 6px !important;
+    margin: 2px !important;
+  }
+  
+  .editorWrapper :global(.tox-tbtn:hover) {
+    background-color: var(--greyhard) !important;
+    color: var(--white) !important;
+  }
+  
+  .editorWrapper :global(.tox-tbtn--enabled) {
+    background-color: var(--yellow) !important;
+    color: var(--black) !important;
+  }
+  
+  .editorWrapper :global(.tox-tbtn--enabled:hover) {
+    background-color: var(--alfred) !important;
+  }
+  
+  .editorWrapper :global(.tox-split-button) {
+    border-radius: 6px !important;
+  }
+  
+  .editorWrapper :global(.tox-split-button__chevron) {
+    color: var(--grey) !important;
+  }
+  
+  .editorWrapper :global(.tox-split-button:hover .tox-split-button__chevron) {
+    color: var(--white) !important;
+  }
+  
+  .editorWrapper :global(.tox-edit-area) {
+    border: none !important;
+  }
+  
+  .editorWrapper :global(.tox-edit-area iframe) {
+    background-color: var(--bg) !important;
+  }
+  
+  .editorWrapper :global(.tox-statusbar) {
+    background-color: var(--bg) !important;
+    border-top: 2px solid var(--border) !important;
+    color: var(--grey) !important;
+  }
+  
+  .editorWrapper :global(.tox-statusbar__text-container) {
+    color: var(--grey) !important;
+  }
+  
+  .editorWrapper :global(.tox-statusbar__path) {
+    color: var(--grey) !important;
+  }
+  
+  .editorWrapper :global(.tox-statusbar__path-item) {
+    color: var(--grey) !important;
+  }
+  
+  .editorWrapper :global(.tox-statusbar__path-item:hover) {
+    color: var(--white) !important;
+  }
+  
+  .editorWrapper :global(.tox-statusbar__resize-handle) {
+    color: var(--grey) !important;
+  }
+  
+  /* Menu customizations */
+  .editorWrapper :global(.tox-menu) {
+    background-color: var(--bg) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+  }
+  

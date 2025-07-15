@@ -1,0 +1,53 @@
+.container {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    background-color: var(--bg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-bottom: 16px;
+    position: relative;
+  }
+  
+  .container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--yellow) 0%, var(--green) 50%, var(--red) 100%);
+    opacity: 0.6;
+  }
+  
+  .container:hover {
+    border-color: var(--yellow);
+    box-shadow: 0 6px 20px rgba(240, 185, 11, 0.1);
+  }
+  
+  /* Loading state */
+  .container[data-loading="true"] {
+    position: relative;
+    pointer-events: none;
+  }
+  
+  .container[data-loading="true"]::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(31, 31, 31, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .container {
+      margin-bottom: 12px;
+    }
+  }

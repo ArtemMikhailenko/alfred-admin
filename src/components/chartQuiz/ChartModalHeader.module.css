@@ -1,0 +1,127 @@
+.container {
+    display: flex;
+    align-items: center;
+    padding: 16px 0;
+    margin-bottom: 16px;
+    border-bottom: 2px solid var(--border);
+    gap: 16px;
+    position: relative;
+  }
+  
+  .titleSection {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--white);
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+  
+  .subtitle {
+    font-size: 14px;
+    color: var(--grey);
+    margin: 0;
+    font-weight: 500;
+  }
+  
+  .spacer {
+    flex: 1;
+  }
+  
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .closeButton {
+    width: 44px;
+    height: 44px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background-color: var(--greyhard);
+    color: var(--grey);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .closeButton::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  .closeButton:hover::before {
+    left: 100%;
+  }
+  
+  .closeButton:hover {
+    border-color: var(--red);
+    background-color: var(--red);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(178, 60, 60, 0.3);
+  }
+  
+  .closeButton:active {
+    transform: translateY(0);
+  }
+  
+  .closeIcon {
+    transition: transform 0.2s ease;
+  }
+  
+  .closeButton:hover .closeIcon {
+    transform: rotate(90deg);
+  }
+  
+  /* Focus styles for accessibility */
+  .closeButton:focus-visible {
+    outline: 2px solid var(--yellow);
+    outline-offset: 2px;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .container {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    
+    .titleSection {
+      width: 100%;
+    }
+    
+    .title {
+      font-size: 20px;
+    }
+    
+    .controls {
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .closeButton {
+      position: absolute;
+      top: 16px;
+      right: 0;
+      width: 36px;
+      height: 36px;
+    }
+  }

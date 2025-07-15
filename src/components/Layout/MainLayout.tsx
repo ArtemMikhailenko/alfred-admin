@@ -88,6 +88,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       description: 'User management'
     },
     {
+      id: 'analytics',
+      label: 'Analytics',
+      icon: Users,
+      path: '/analytics',
+      description: 'User management'
+    },
+    {
       id: 'settings',
       label: 'Settings',
       icon: Settings,

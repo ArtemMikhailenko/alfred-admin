@@ -1,0 +1,107 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: flex-end;
+    margin-bottom: 8px;
+  }
+  
+  .column {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 8px;
+  }
+  
+  .label {
+    color: var(--grey);
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+  }
+  
+  .buttonGroup {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .answerButton {
+    flex: 1;
+    height: 40px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    background-color: transparent;
+    transition: all 0.2s ease;
+  }
+  
+  .answerButton:hover {
+    transform: translateY(-1px);
+  }
+  
+  .shortButton {
+    color: var(--red);
+    border-color: var(--red);
+  }
+  
+  .shortButton.active {
+    background-color: var(--red-50);
+    box-shadow: 0 0 0 2px var(--red-20);
+  }
+  
+  .longButton {
+    color: var(--green);
+    border-color: var(--green);
+  }
+  
+  .longButton.active {
+    background-color: var(--green-40);
+    box-shadow: 0 0 0 2px var(--green-20);
+  }
+  
+  .input {
+    height: 40px;
+    padding: 0 12px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background-color: var(--greyhard);
+    color: var(--white);
+    font-size: 16px;
+    transition: border-color 0.2s ease;
+  }
+  
+  .input:focus {
+    outline: none;
+    border-color: var(--yellow);
+    box-shadow: 0 0 0 2px var(--yellow-30);
+  }
+  
+  .pointsInput {
+    color: var(--yellow);
+    font-weight: 600;
+  }
+  
+  .toggleButton {
+    height: 40px;
+    min-width: 100px;
+    padding: 0 20px;
+    background-color: var(--grey);
+    color: var(--black);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .toggleButton:hover {
+    background-color: var(--white);
+    transform: translateY(-1px);
+  }
+  
+  .toggleButton:active {
+    transform: translateY(0);
+  }

@@ -1,12 +1,22 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import ChartModalHeader from './ChartModalHeader'
+import React, { useCallback, useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { Language, languagesObjString } from '../../constants/interfaces'
+import { TokensState } from '../../redux/tokens'
+import { PostSwipeTrade, UpdateSwipeTrade } from '../../actions/actions'
+import { ReloginAndRetry } from '../ReloginAndRetry'
+
+// Component imports
+import ChartModalHeader from './ChartModalHeader'
 import ChartModalFooter from './ChartModalFooter'
 import CandlestickChart from './CandlestickChart'
-import { styles } from './styles'
 import AnswerPickerBlock from './AnswerPickerBlock'
 import DatePickerBlock from './DatePickerBlock'
 import ChartParamsBlock, { intervalMap } from './ChartParamsBlock'
+import TitleInputBlock from './TitleInputBlock'
+import DescriptionPreview from './DescriptionPreview'
+import DescriptionInput from './DescriptionInput'
+
+// Function imports
 import {
   Answer,
   AnswerCheck,
@@ -23,61 +33,57 @@ import {
   TitleCheck,
   WagmiCandle,
 } from './functions'
-import TitleInputBlock from './TitleInputBlock'
-import {
-  AdminLogin,
-  LogIn,
-  PostSwipeTrade,
-  UpdateSwipeTrade,
-} from '../../actions/actions'
-import { setTokens, TokensState } from '../../redux/tokens'
-import { useDispatch } from 'react-redux'
-import DescriptionPreview from './DescriptionPreview'
-import DescriptionInput from './DescriptionInput'
-import { promptPassword } from '../../screens/SwipeTradeScreen'
-import { ReloginAndRetry } from '../ReloginAndRetry'
 
-const CreateChartQuizModal = ({
-  initialValue,
-  onClose,
-  tokens,
-}: {
+// Styles
+import styles from './CreateChartQuizModal.module.css'
+
+interface CreateChartQuizModalProps {
   initialValue: SwipeTradeQuizInterface | null
   onClose: (isUpdated: boolean) => void
   tokens: TokensState
+}
+
+const CreateChartQuizModal: React.FC<CreateChartQuizModalProps> = ({
+  initialValue,
+  onClose,
+  tokens,
 }) => {
   const dispatch = useDispatch()
+  
+  // State management
   const [language, setLanguage] = useState<Language>('ua')
-
   const [isActive, setIsActive] = useState<boolean>(
-    initialValue ? initialValue?.isActive : true
+    initialValue ? initialValue.isActive : true
   )
   const [title, setTitle] = useState<string>(initialValue?.title || '')
   const [description, setDescription] = useState<Record<Language, string>>(
     initialValue?.description || languagesObjString
   )
 
+  // Chart parameters
   const [symbol, setSymbol] = useState(initialValue?.settings.pair || 'BTCUSDT')
   const [startDate, setStartDate] = useState<string>(
     initialValue?.settings.startDate
-      ? ParseDateTimeString(initialValue?.settings.startDate)
+      ? ParseDateTimeString(initialValue.settings.startDate)
       : '2024-01-01T00:00'
   )
   const [endDate, setEndDate] = useState<string>(
     initialValue?.settings.endDate
-      ? ParseDateTimeString(initialValue?.settings.endDate)
+      ? ParseDateTimeString(initialValue.settings.endDate)
       : '2024-01-01T01:00'
   )
   const [timeframe, setTimeframe] = useState<string>(
     initialValue?.settings.timeframe
-      ? FormatIntervalValue(initialValue?.settings.timeframe)
+      ? FormatIntervalValue(initialValue.settings.timeframe)
       : '1'
   )
 
+  // Chart data
   const [candles, setCandles] = useState<WagmiCandle[]>(
     initialValue?.candleData || []
   )
 
+  // Quiz settings
   const [answer, setAnswer] = useState<Answer>(
     initialValue?.settings.answer || null
   )
@@ -88,36 +94,44 @@ const CreateChartQuizModal = ({
   const [points, setPoints] = useState<string>(
     initialValue?.settings.points.toString() || '0'
   )
+  
+  // UI state
   const [hasChanged, setHasChanged] = useState<boolean>(
     initialValue?.id ? false : true
   )
   const [checkDescription, setCheckDescription] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
+  // Handlers
   const handleClose = () => {
     onClose(true)
   }
 
-  const bybitRequest = async () => {
+  const generateChart = async () => {
+    if (isLoading) return
+    
+    setIsLoading(true)
     try {
       const start = new Date(startDate)
       const end = new Date(endDate)
       const intervalMs = intervalMap[timeframe]
 
       if (start.getTime() > end.getTime()) {
-        alert('invalid time input')
+        alert('Invalid time input: Start date must be before end date')
         return
       }
+      
       if (!intervalMs || end.getTime() - start.getTime() < intervalMs) {
-        alert('invalid timeframe')
+        alert('Invalid timeframe: Time range is too small for selected interval')
         return
       }
 
       const limit = Math.floor((end.getTime() - start.getTime()) / intervalMs)
 
       if (limit > 1000) {
-        alert(`will only render the first 1000 candles out of ${limit}`)
+        alert(`Will only render the first 1000 candles out of ${limit}`)
       }
-      setCandlesFirstHalf((Math.min(limit, 1000) / 2).toString())
+      
       const half = Math.floor(Math.min(limit, 1000) / 2)
       setCandlesFirstHalf(Math.max(1, Math.min(half, limit - 1)).toString())
 
@@ -132,15 +146,19 @@ const CreateChartQuizModal = ({
       setCandles(data)
       setHasChanged(false)
     } catch (err: any) {
-      console.error(err.message)
+      console.error('Error fetching chart data:', err)
+      alert(`Failed to fetch chart data: ${err.message}`)
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  async function handleSave() {
+  const handleSave = async () => {
     if (!(tokens.accessToken && tokens.email)) return
+    if (isLoading) return
 
     if (hasChanged) {
-      alert('Draw the chart first')
+      alert('Please generate the chart first')
       return
     }
 
@@ -172,40 +190,49 @@ const CreateChartQuizModal = ({
       return
     }
 
-    const data = {
-      title,
-      settings: {
-        timeframe: FormatIntervalLabel(timeframe),
-        pair: symbol,
-        startDate: FormatTime(startDate),
-        endDate: FormatTime(endDate),
-        answer,
-        points: +points,
-        itemsToShowFirst: +candlesFirstHalf,
-        hideChart: false,
-      },
-      candleData: candles,
-      description: description,
-      isActive,
-    }
+    setIsLoading(true)
+    try {
+      const data = {
+        title,
+        settings: {
+          timeframe: FormatIntervalLabel(timeframe),
+          pair: symbol,
+          startDate: FormatTime(startDate),
+          endDate: FormatTime(endDate),
+          answer,
+          points: +points,
+          itemsToShowFirst: +candlesFirstHalf,
+          hideChart: false,
+        },
+        candleData: candles,
+        description: description,
+        isActive,
+      }
 
-    const trySubmit = async (accessToken: string): Promise<boolean> => {
-      const response = initialValue?.id
-        ? await UpdateSwipeTrade(initialValue.id, data, accessToken)
-        : await PostSwipeTrade(data, accessToken)
+      const trySubmit = async (accessToken: string): Promise<boolean> => {
+        const response = initialValue?.id
+          ? await UpdateSwipeTrade(initialValue.id, data, accessToken)
+          : await PostSwipeTrade(data, accessToken)
 
-      if (response.error) return false
+        if (response.error) return false
 
-      onClose(false)
-      return true
-    }
+        onClose(false)
+        return true
+      }
 
-    const success = await trySubmit(tokens.accessToken)
-    if (!success) {
-      await ReloginAndRetry(tokens.email, dispatch, trySubmit)
+      const success = await trySubmit(tokens.accessToken)
+      if (!success) {
+        await ReloginAndRetry(tokens.email, dispatch, trySubmit)
+      }
+    } catch (error) {
+      console.error('Error saving quiz:', error)
+      alert('Failed to save quiz. Please try again.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
+  // Memoized update functions
   const updateText = useCallback(
     (newText: string) => {
       setDescription((prev) => ({
@@ -226,84 +253,102 @@ const CreateChartQuizModal = ({
     setHasChanged(true)
   }, [])
 
-  const updateTimeFrame = useCallback((date: string) => {
-    setTimeframe(date)
+  const updateTimeFrame = useCallback((frame: string) => {
+    setTimeframe(frame)
     setHasChanged(true)
   }, [])
 
-  const updateSymbol = useCallback((date: string) => {
-    setSymbol(date)
+  const updateSymbol = useCallback((sym: string) => {
+    setSymbol(sym)
     setHasChanged(true)
   }, [])
 
   return (
-    <div style={styles.createModal}>
+    <div className={styles.container}>
       <ChartModalHeader
         language={language}
         setLanguage={setLanguage}
         handleClose={handleClose}
       />
-      <TitleInputBlock
-        title={title}
-        setTitle={setTitle}
-        isActive={isActive}
-        setIsActive={setIsActive}
-      />
+      
+      <div className={styles.content}>
+        <TitleInputBlock
+          title={title}
+          setTitle={setTitle}
+          isActive={isActive}
+          setIsActive={setIsActive}
+        />
 
-      <div style={styles.row}>
-        <div style={styles.column}>
-          {checkDescription ? (
-            <DescriptionPreview text={description[language]} />
-          ) : (
-            <>
-              <CandlestickChart
-                candles={candles}
-                candlesFirstHalf={+candlesFirstHalf}
-                showFullChart={showFullChart}
-              />
-              <DatePickerBlock
-                startDate={startDate}
-                setStartDate={updateStartDate}
-                endDate={endDate}
-                setEndDate={updateEndDate}
-              />
-              <ChartParamsBlock
-                timeframe={timeframe}
-                setTimeframe={updateTimeFrame}
-                symbol={symbol}
-                setSymbol={updateSymbol}
-                onRequest={bybitRequest}
-                hasChanged={hasChanged}
-              />
-              <AnswerPickerBlock
-                answer={answer}
-                setAnswer={setAnswer}
-                candlesFirstHalf={candlesFirstHalf}
-                setCandlesFirstHalf={setCandlesFirstHalf}
-                candlesAmount={candles.length}
-                showFullChart={showFullChart}
-                toggleShowFullChart={() => setShowFullChart(!showFullChart)}
-                points={points}
-                setPoints={setPoints}
-              />
-            </>
-          )}
-        </div>
-        <div style={styles.column}>
-          <DescriptionInput
-            value={description[language]}
-            onChange={updateText}
-          />
+        <div className={styles.mainContent}>
+          <div className={styles.leftColumn}>
+            {checkDescription ? (
+              <DescriptionPreview text={description[language]} />
+            ) : (
+              <div className={styles.chartSection}>
+                <CandlestickChart
+                  candles={candles}
+                  candlesFirstHalf={+candlesFirstHalf}
+                  showFullChart={showFullChart}
+                />
+                
+                <div className={styles.controlsSection}>
+                  <DatePickerBlock
+                    startDate={startDate}
+                    setStartDate={updateStartDate}
+                    endDate={endDate}
+                    setEndDate={updateEndDate}
+                  />
+                  
+                  <ChartParamsBlock
+                    timeframe={timeframe}
+                    setTimeframe={updateTimeFrame}
+                    symbol={symbol}
+                    setSymbol={updateSymbol}
+                    onRequest={generateChart}
+                    hasChanged={hasChanged}
+                  />
+                  
+                  <AnswerPickerBlock
+                    answer={answer}
+                    setAnswer={setAnswer}
+                    candlesFirstHalf={candlesFirstHalf}
+                    setCandlesFirstHalf={setCandlesFirstHalf}
+                    candlesAmount={candles.length}
+                    showFullChart={showFullChart}
+                    toggleShowFullChart={() => setShowFullChart(!showFullChart)}
+                    points={points}
+                    setPoints={setPoints}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <div className={styles.rightColumn}>
+            <DescriptionInput
+              value={description[language]}
+              onChange={updateText}
+            />
+          </div>
         </div>
       </div>
 
       <ChartModalFooter
         handleSave={handleSave}
-        handleCheckDescription={() => {
-          setCheckDescription(!checkDescription)
-        }}
-        disabled={hasChanged}
+        handleCheckDescription={() => setCheckDescription(!checkDescription)}
+        disabled={hasChanged || isLoading}
       />
+      
+      {isLoading && (
+        <div className={styles.loadingOverlay}>
+          <div className={styles.loadingSpinner}>
+            <div className={styles.spinner} />
+            <p className={styles.loadingText}>
+              {hasChanged ? 'Generating chart...' : 'Saving quiz...'}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

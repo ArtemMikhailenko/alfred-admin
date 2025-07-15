@@ -1,0 +1,235 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-width: 100%;
+    background-color: var(--bg);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    position: relative;
+  }
+  
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0 24px;
+    overflow: hidden;
+  }
+  
+  .mainContent {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  .leftColumn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+  }
+  
+  .rightColumn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+  }
+  
+  .chartSection {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
+    overflow-y: auto;
+  }
+  
+  .controlsSection {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .loadingOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(31, 31, 31, 0.8);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .loadingSpinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 32px;
+    background-color: var(--greyhard);
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+  
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border);
+    border-top: 4px solid var(--yellow);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .loadingText {
+    color: var(--white);
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0;
+    text-align: center;
+  }
+  
+  /* Scrollbar styling */
+  .chartSection::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .chartSection::-webkit-scrollbar-track {
+    background: var(--greyhard);
+    border-radius: 4px;
+  }
+  
+  .chartSection::-webkit-scrollbar-thumb {
+    background: var(--grey);
+    border-radius: 4px;
+    transition: background 0.2s ease;
+  }
+  
+  .chartSection::-webkit-scrollbar-thumb:hover {
+    background: var(--white);
+  }
+  
+  /* Responsive design */
+  @media (max-width: 1200px) {
+    .mainContent {
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .leftColumn,
+    .rightColumn {
+      flex: none;
+      height: auto;
+    }
+    
+    .chartSection {
+      max-height: 60vh;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .container {
+      border-radius: 12px;
+      height: 100vh;
+      max-height: 100vh;
+    }
+    
+    .content {
+      padding: 0 16px;
+    }
+    
+    .mainContent {
+      gap: 16px;
+    }
+    
+    .loadingSpinner {
+      padding: 24px;
+    }
+    
+    .spinner {
+      width: 32px;
+      height: 32px;
+    }
+    
+    .loadingText {
+      font-size: 14px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .content {
+      padding: 0 12px;
+    }
+    
+    .mainContent {
+      gap: 12px;
+    }
+    
+    .controlsSection {
+      gap: 12px;
+    }
+  }
+  
+  /* Animation for smooth transitions */
+  .container {
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Focus management */
+  .container:focus-within {
+    outline: 2px solid var(--yellow);
+    outline-offset: 2px;
+  }
+  
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .container {
+      border: 3px solid var(--white);
+    }
+    
+    .loadingOverlay {
+      background-color: rgba(0, 0, 0, 0.9);
+    }
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .container {
+      animation: none;
+    }
+    
+    .spinner {
+      animation: none;
+      border: 4px solid var(--yellow);
+    }
+    
+    * {
+      transition: none !important;
+    }
+  }

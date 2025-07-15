@@ -1,0 +1,341 @@
+.container {
+    background: linear-gradient(135deg, var(--greyhard) 0%, var(--bg) 100%);
+    border-bottom: 2px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    backdrop-filter: blur(8px);
+  }
+  
+  .topNav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+  }
+  
+  .breadcrumbLink {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--yellow);
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .breadcrumbLink:hover {
+    background-color: var(--yellow-30);
+    color: var(--white);
+  }
+  
+  .breadcrumbSeparator {
+    color: var(--grey);
+    font-weight: 300;
+  }
+  
+  .breadcrumbCurrent {
+    color: var(--white);
+    font-weight: 600;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .exportButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: var(--greyhard);
+    color: var(--grey);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .exportButton:hover {
+    background-color: var(--grey);
+    color: var(--black);
+    border-color: var(--grey);
+  }
+  
+  .mainHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px;
+    gap: 24px;
+  }
+  
+  .titleSection {
+    flex: 1;
+  }
+  
+  .title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--white);
+    margin: 0 0 8px 0;
+    letter-spacing: -0.8px;
+    background: linear-gradient(135deg, var(--white) 0%, var(--yellow) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .subtitle {
+    font-size: 16px;
+    color: var(--grey);
+    margin: 0;
+    font-weight: 400;
+  }
+  
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .timeRangeSelector {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 160px;
+  }
+  
+  .selectorLabel {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--grey);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .select {
+    padding: 8px 12px;
+    background-color: var(--bg);
+    color: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23999' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 8px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 32px;
+  }
+  
+  .select:focus {
+    outline: none;
+    border-color: var(--yellow);
+    box-shadow: 0 0 0 2px var(--yellow-30);
+  }
+  
+  .select option {
+    background-color: var(--bg);
+    color: var(--white);
+  }
+  
+  .tabNavigation {
+    padding: 0 24px;
+    overflow-x: auto;
+  }
+  
+  .tabList {
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid var(--border);
+    min-width: max-content;
+  }
+  
+  .tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--grey);
+    border-radius: 8px 8px 0 0;
+    transition: all 0.2s ease;
+    position: relative;
+    white-space: nowrap;
+  }
+  
+  .tab:hover {
+    color: var(--white);
+    background-color: var(--greyhard);
+  }
+  
+  .tab::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+  }
+  
+  .tabActive {
+    color: var(--yellow);
+    background-color: var(--greyhard);
+  }
+  
+  .tabActive::after {
+    background-color: var(--yellow);
+  }
+  
+  .tabIcon {
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .tabLabel {
+    font-weight: 600;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .mainHeader {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    
+    .controls {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .topNav {
+      padding: 12px 16px;
+    }
+    
+    .mainHeader {
+      padding: 20px 16px;
+    }
+    
+    .title {
+      font-size: 24px;
+    }
+    
+    .subtitle {
+      font-size: 14px;
+    }
+    
+    .tabNavigation {
+      padding: 0 16px;
+    }
+    
+    .tab {
+      padding: 10px 16px;
+      font-size: 13px;
+    }
+    
+    .controls {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+    }
+    
+    .timeRangeSelector {
+      min-width: auto;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .topNav {
+      flex-direction: column;
+      gap: 12px;
+      align-items: stretch;
+    }
+    
+    .breadcrumb {
+      justify-content: center;
+    }
+    
+    .actions {
+      justify-content: center;
+    }
+    
+    .tab {
+      flex: 1;
+      justify-content: center;
+      min-width: 0;
+    }
+    
+    .tabLabel {
+      display: none;
+    }
+    
+    .tabIcon {
+      font-size: 18px;
+    }
+  }
+  
+  /* Scrollbar for tab navigation */
+  .tabNavigation::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .tabNavigation::-webkit-scrollbar-track {
+    background: var(--greyhard);
+  }
+  
+  .tabNavigation::-webkit-scrollbar-thumb {
+    background: var(--grey);
+    border-radius: 2px;
+  }
+  
+  .tabNavigation::-webkit-scrollbar-thumb:hover {
+    background: var(--white);
+  }
+  
+  /* Loading state */
+  .container[data-loading="true"] {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+  
+  /* High contrast mode */
+  @media (prefers-contrast: high) {
+    .tab {
+      border: 1px solid transparent;
+    }
+    
+    .tabActive {
+      border-color: var(--yellow);
+    }
+  }

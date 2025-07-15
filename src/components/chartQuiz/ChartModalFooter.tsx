@@ -1,37 +1,43 @@
-import colors from '../../constants/colors'
-import { styles } from './styles'
+import React from 'react'
+import styles from './ChartModalFooter.module.css'
 
-export default function ChartModalFooter({
-  handleSave,
-  disabled,
-  handleCheckDescription,
-}: {
+interface ChartModalFooterProps {
   handleSave: () => void
   disabled: boolean
   handleCheckDescription: () => void
-}) {
+}
+
+const ChartModalFooter: React.FC<ChartModalFooterProps> = ({
+  handleSave,
+  disabled,
+  handleCheckDescription,
+}) => {
   return (
-    <div style={styles.rowFooter}>
-      <div style={{ flex: 1 }} />
-      <button
-        style={{
-          ...styles.buttonFooter,
-          backgroundColor: colors.grey,
-        }}
-        onClick={handleCheckDescription}
-      >
-        Check description
-      </button>
-      <button
-        style={{
-          ...styles.buttonFooter,
-          backgroundColor: disabled ? colors.greyhard : colors.yellow,
-        }}
-        onClick={handleSave}
-        disabled={disabled}
-      >
-        Save
-      </button>
+    <div className={styles.container}>
+      <div className={styles.spacer} />
+      
+      <div className={styles.buttonGroup}>
+        <button
+          className={`${styles.button} ${styles.secondaryButton}`}
+          onClick={handleCheckDescription}
+          type="button"
+        >
+          Check description
+        </button>
+        
+        <button
+          className={`${styles.button} ${styles.primaryButton} ${
+            disabled ? styles.disabled : ''
+          }`}
+          onClick={handleSave}
+          disabled={disabled}
+          type="submit"
+        >
+          Save
+        </button>
+      </div>
     </div>
   )
 }
+
+export default ChartModalFooter

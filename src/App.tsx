@@ -19,6 +19,7 @@ import { Language } from './constants/interfaces'
 import './styles/globals.css'
 import DashboardScreen from './screens/DashboardScreen'
 import CoursesScreen from './screens/CourseScreen'
+import AnalyticsScreen from './components/analytics/AnalyticsScreen'
 
 const AppContent = () => {
   const location = useLocation()
@@ -97,7 +98,10 @@ const AppContent = () => {
               path="/chapter/:courseId/:chapterId"
               element={<PrivateRoute element={<ChapterScreen />} />}
             />
-            
+            <Route
+            path="/analytics"
+            element={<PrivateRoute element={<AnalyticsScreen />} />}
+          />
             {/* Swipe Trade */}
             <Route
               path="/swipetrade"

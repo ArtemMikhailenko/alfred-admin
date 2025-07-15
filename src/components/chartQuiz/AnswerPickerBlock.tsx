@@ -1,9 +1,20 @@
-import globalStyles from '../../constants/globalStyles'
-import colors from '../../constants/colors'
-import { styles } from './styles'
+import React from 'react'
 import { Answer } from './functions'
+import styles from './AnswerPickerBlock.module.css'
 
-function AnswerPickerBlock({
+interface AnswerPickerBlockProps {
+  answer: Answer
+  setAnswer: (answer: Answer) => void
+  candlesFirstHalf: string
+  setCandlesFirstHalf: (value: string) => void
+  candlesAmount: number
+  showFullChart: boolean
+  toggleShowFullChart: () => void
+  points: string
+  setPoints: (value: string) => void
+}
+
+const AnswerPickerBlock: React.FC<AnswerPickerBlockProps> = ({
   answer,
   setAnswer,
   candlesFirstHalf,
@@ -13,104 +24,85 @@ function AnswerPickerBlock({
   toggleShowFullChart,
   points,
   setPoints,
-}: {
-  answer: Answer
-  setAnswer: (i: Answer) => void
-  candlesFirstHalf: string
-  setCandlesFirstHalf: (i: string) => void
-  candlesAmount: number
-  showFullChart: boolean
-  toggleShowFullChart: () => void
-  points: string
-  setPoints: (i: string) => void
-}) {
+}) => {
+  const handlePointsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    if (/^\d*$/.test(val)) {
+      if (val === '') {
+        setPoints('')
+      } else {
+        const num = parseInt(val, 10)
+        setPoints(num.toString())
+      }
+    }
+  }
+
+  const handleCandlesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    if (/^\d*$/.test(val)) {
+      if (val === '') {
+        setCandlesFirstHalf('')
+      } else {
+        const num = parseInt(val, 10)
+        const clamped = Math.max(0, Math.min(candlesAmount, num))
+        setCandlesFirstHalf(clamped.toString())
+      }
+    }
+  }
+
   return (
-    <div style={{ ...styles.row, marginBottom: 8 }}>
-      <div style={styles.column}>
-        <p style={styles.chartInputTitle}>Answer</p>
-        <div style={styles.row}>
+    <div className={styles.container}>
+      <div className={styles.column}>
+        <p className={styles.label}>Answer</p>
+        <div className={styles.buttonGroup}>
           <button
-            style={{
-              ...globalStyles.submitButton,
-              backgroundColor:
-                answer === 'Short' ? colors.red50 : 'transparent',
-              borderStyle: 'solid',
-              borderWidth: answer === 'Short' ? 1 : 0,
-              borderColor: colors.red,
-              color: colors.red,
-              flex: 1,
-            }}
-            onClick={() => {
-              setAnswer('Short')
-            }}
+            className={`${styles.answerButton} ${styles.shortButton} ${
+              answer === 'Short' ? styles.active : ''
+            }`}
+            onClick={() => setAnswer('Short')}
           >
             Short
           </button>
           <button
-            style={{
-              ...globalStyles.submitButton,
-              backgroundColor:
-                answer === 'Long' ? colors.green40 : 'transparent',
-              borderStyle: 'solid',
-              borderWidth: answer === 'Long' ? 1 : 0,
-              borderColor: colors.green,
-              color: colors.green,
-              flex: 1,
-            }}
-            onClick={() => {
-              setAnswer('Long')
-            }}
+            className={`${styles.answerButton} ${styles.longButton} ${
+              answer === 'Long' ? styles.active : ''
+            }`}
+            onClick={() => setAnswer('Long')}
           >
             Long
           </button>
         </div>
       </div>
-      <div style={styles.column}>
-        <p style={styles.chartInputTitle}>Points</p>
+
+      <div className={styles.column}>
+        <p className={styles.label}>Points</p>
         <input
-          style={{ ...styles.chartInput, color: colors.yellow }}
-          type="text" // ← change to text for better control
-          inputMode="numeric" // ← still brings up number keyboard on mobile
+          className={`${styles.input} ${styles.pointsInput}`}
+          type="text"
+          inputMode="numeric"
           pattern="[0-9]*"
           value={points}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            const val = e.target.value
-            if (/^\d*$/.test(val)) {
-              if (val === '') {
-                setPoints('')
-              } else {
-                const num = parseInt(val, 10)
-                setPoints(num.toString())
-              }
-            }
-          }}
+          onChange={handlePointsChange}
+          placeholder="Enter points"
         />
       </div>
-      <div style={styles.column}>
-        <p style={styles.chartInputTitle}>Items to show first</p>
+
+      <div className={styles.column}>
+        <p className={styles.label}>Items to show first</p>
         <input
-          style={styles.chartInput}
+          className={styles.input}
           type="text"
-          inputMode="numeric" // ← still brings up number keyboard on mobile
+          inputMode="numeric"
           min={0}
           max={candlesAmount}
           value={candlesFirstHalf}
           pattern="[0-9]*"
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            const val = e.target.value
-            if (/^\d*$/.test(val)) {
-              if (val === '') {
-                setCandlesFirstHalf('')
-              } else {
-                const num = parseInt(val, 10)
-                const clamped = Math.max(0, Math.min(candlesAmount, num))
-                setCandlesFirstHalf(clamped.toString())
-              }
-            }
-          }}
+          onChange={handleCandlesChange}
+          placeholder="Enter count"
         />
       </div>
-      <button style={globalStyles.editButton} onClick={toggleShowFullChart}>
+
+      <button className={styles.toggleButton} onClick={toggleShowFullChart}>
         {showFullChart ? 'Hide' : 'Show'} chart
       </button>
     </div>
