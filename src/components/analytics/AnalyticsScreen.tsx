@@ -1,26 +1,19 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
-import analyticsService, { QuizAnalytics, UserAnalytics, SessionAnalytics, RealtimeStats } from '../../analyticsService'
-import mobileAnalyticsService, { MobileAppAnalytics, MobileUserSession, MobileQuizAnalytics } from '../..//mobileAnalyticsService'
+import { firebaseAnalyticsService, FirebaseAnalyticsResponse } from '../../services/firebaseAnalyticsService'
+import { RootState } from '../../redux'
+import colors from '../../constants/colors'
 
 // Components
 import AnalyticsHeader from './AnalyticsHeader'
-import StatsOverview from './StatsOverview'
-import MobileAppsOverview from './MobileAppsOverview'
-import MobileDeviceDistribution from './MobileDeviceDistribution'
-// import QuizPerformanceChart from '../components/analytics/QuizPerformanceChart'
-// import UserEngagementChart from '../components/analytics/UserEngagementChart'
-// import RealtimeStatsWidget from '../components/analytics/RealtimeStatsWidget'
-// import TopQuizzesTable from '../components/analytics/TopQuizzesTable'
-// import UserActivityHeatmap from '../components/analytics/UserActivityHeatmap'
-// import ErrorLogsTable from '../components/analytics/ErrorLogsTable'
-// import ExportDataButton from '../components/analytics/ExportDataButton'
+import FirebaseStatsOverview from './FirebaseStatsOverview'
+import EventsChart from './EventsChart'
+import ScreenViewsChart from './ScreenViewsChart'
+import UserEngagementMetrics from './UserEngagementMetrics'
 
-import styles from './AnalyticsScreen.module.css'
-import { RootState } from '../../redux'
 
 type TimeRange = '7d' | '30d' | '90d' | '1y'
-type AnalyticsTab = 'overview' | 'mobile' | 'quizzes' | 'users' | 'performance' | 'errors'
+type AnalyticsTab = 'overview' | 'events' | 'screens' | 'users' | 'engagement'
 
 const AnalyticsScreen: React.FC = () => {
   const tokens = useSelector((state: RootState) => state.tokens)
@@ -30,195 +23,40 @@ const AnalyticsScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AnalyticsTab>('overview')
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
-
-  // Web Analytics Data
-  const [quizAnalytics, setQuizAnalytics] = useState<QuizAnalytics[]>([])
-  const [userAnalytics, setUserAnalytics] = useState<UserAnalytics[]>([])
-  const [sessionAnalytics, setSessionAnalytics] = useState<SessionAnalytics[]>([])
-  const [realtimeStats, setRealtimeStats] = useState<RealtimeStats | null>(null)
-
-  // Mobile Analytics Data
-  const [mobileApps, setMobileApps] = useState<MobileAppAnalytics[]>([])
-  const [mobileSessions, setMobileSessions] = useState<MobileUserSession[]>([])
-  const [mobileQuizzes, setMobileQuizzes] = useState<MobileQuizAnalytics[]>([])
-  const [deviceDistribution, setDeviceDistribution] = useState<any>({
-    android: { total: 0, topDevices: [], osVersions: [] },
-    ios: { total: 0, topDevices: [], osVersions: [] }
-  })
-  const [geographicData, setGeographicData] = useState<Record<string, number>>({})
-
-  // Computed stats
-  const [overviewStats, setOverviewStats] = useState({
-    totalUsers: 0,
-    totalQuizzes: 0,
-    totalSessions: 0,
-    averageSessionDuration: 0,
-    totalQuizCompletions: 0,
-    averageQuizScore: 0,
-    activeUsersToday: 0,
-    quizCompletionRate: 0,
-    // Mobile specific
-    mobileUsers: 0,
-    mobileSessions: 0,
-    topMobilePlatform: 'android'
-  })
+  const [analyticsData, setAnalyticsData] = useState<FirebaseAnalyticsResponse | null>(null)
 
   useEffect(() => {
     loadAnalyticsData()
-    const unsubscribe = setupRealtimeSubscription()
-
-    // Track page view
-    if (tokens.email) {
-      analyticsService.trackPageView('Analytics Dashboard', tokens.email)
-    }
-
-    return () => {
-      if (unsubscribe) unsubscribe()
-    }
-  }, [timeRange, tokens.email])
+  }, [timeRange, tokens.accessToken])
 
   const loadAnalyticsData = async () => {
+    if (!tokens.accessToken) {
+      setError('No access token available')
+      setLoading(false)
+      return
+    }
+
     setLoading(true)
     setError(null)
 
     try {
-      const days = getTimeRangeDays(timeRange)
-      
-      // Load web analytics
-      const [quizData, sessionData] = await Promise.all([
-        analyticsService.getQuizAnalytics(),
-        analyticsService.getSessionAnalytics(days)
-      ])
-
-      // Load mobile analytics
-      const [mobileAppsData, mobileSessionsData, mobileQuizzesData, deviceData, geoData] = await Promise.all([
-        mobileAnalyticsService.getMobileAppsOverview(),
-        mobileAnalyticsService.getMobileSessions(undefined, days),
-        mobileAnalyticsService.getMobileQuizAnalytics(days),
-        mobileAnalyticsService.getDeviceDistribution(days),
-        mobileAnalyticsService.getGeographicDistribution(days)
-      ])
-
-      // Set web data
-      setQuizAnalytics(quizData)
-      setSessionAnalytics(sessionData)
-
-      // Set mobile data
-      setMobileApps(mobileAppsData)
-      setMobileSessions(mobileSessionsData)
-      setMobileQuizzes(mobileQuizzesData)
-      setDeviceDistribution(deviceData)
-      setGeographicData(geoData)
-
-      // Calculate combined overview stats
-      calculateCombinedOverviewStats(quizData, sessionData, mobileAppsData, mobileSessionsData)
-
+      const { startDate, endDate } = firebaseAnalyticsService.formatTimeRange(timeRange)
+      const data = await firebaseAnalyticsService.getAnalytics(startDate, endDate, tokens.accessToken)
+      setAnalyticsData(data)
     } catch (err) {
       console.error('Error loading analytics data:', err)
       setError('Failed to load analytics data')
-      analyticsService.trackError(err as Error, 'Analytics Dashboard Load')
     } finally {
       setLoading(false)
     }
   }
 
-  const setupRealtimeSubscription = () => {
-    // Web realtime stats
-    const unsubscribeWeb = analyticsService.subscribeToRealtimeStats((stats:any) => {
-      setRealtimeStats(stats)
-    })
-
-    // Mobile realtime stats
-    const unsubscribeMobile = mobileAnalyticsService.subscribeMobileRealtimeStats((mobileStats:any) => {
-        //@ts-ignore
-      setRealtimeStats(prev => ({
-        ...prev,
-        ...mobileStats
-      }))
-    })
-
-    return () => {
-      unsubscribeWeb()
-      unsubscribeMobile()
-    }
-  }
-
-  const getTimeRangeDays = (range: TimeRange): number => {
-    switch (range) {
-      case '7d': return 7
-      case '30d': return 30
-      case '90d': return 90
-      case '1y': return 365
-      default: return 30
-    }
-  }
-
-  const calculateCombinedOverviewStats = (
-    quizData: QuizAnalytics[], 
-    sessionData: SessionAnalytics[],
-    mobileAppsData: MobileAppAnalytics[],
-    mobileSessionsData: MobileUserSession[]
-  ) => {
-    // Web stats
-    const webQuizCompletions = quizData.reduce((sum, quiz) => sum + quiz.completions, 0)
-    const webQuizAttempts = quizData.reduce((sum, quiz) => sum + (quiz.completions / (quiz.successRate / 100)), 0)
-    const webAverageQuizScore = quizData.length > 0 
-      ? quizData.reduce((sum, quiz) => sum + quiz.averageScore, 0) / quizData.length 
-      : 0
-
-    const webUniqueUsers = new Set(sessionData.map(session => session.userId)).size
-    const webTotalSessionDuration = sessionData.reduce((sum, session) => sum + (session.duration || 0), 0)
-    const webAverageSessionDuration = sessionData.length > 0 ? webTotalSessionDuration / sessionData.length : 0
-
-    // Mobile stats
-    const mobileUsers = mobileAppsData.reduce((sum, app) => sum + app.totalUsers, 0)
-    const mobileSessions = mobileSessionsData.length
-    const mobileUniqueUsers = new Set(mobileSessionsData.map(session => session.userId)).size
-    
-    const androidUsers = mobileAppsData.find(app => app.platform === 'android')?.totalUsers || 0
-    const iosUsers = mobileAppsData.find(app => app.platform === 'ios')?.totalUsers || 0
-    const topMobilePlatform = androidUsers > iosUsers ? 'android' : 'ios'
-
-    // Combined stats
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const webActiveUsersToday = sessionData.filter(session => 
-      session.startTime >= today
-    ).length
-    const mobileActiveUsersToday = mobileSessionsData.filter(session => 
-      session.startTime >= today
-    ).length
-
-    setOverviewStats({
-      totalUsers: webUniqueUsers + mobileUniqueUsers,
-      totalQuizzes: quizData.length,
-      totalSessions: sessionData.length + mobileSessions,
-      averageSessionDuration: webAverageSessionDuration,
-      totalQuizCompletions: webQuizCompletions,
-      averageQuizScore: webAverageQuizScore,
-      activeUsersToday: webActiveUsersToday + mobileActiveUsersToday,
-      quizCompletionRate: webQuizAttempts > 0 ? (webQuizCompletions / webQuizAttempts) * 100 : 0,
-      mobileUsers,
-      mobileSessions,
-      topMobilePlatform
-    })
-  }
-
   const handleExportData = async () => {
+    if (!analyticsData) return
+
     try {
       const exportData = {
-        webAnalytics: {
-          quizAnalytics,
-          sessionAnalytics,
-        },
-        mobileAnalytics: {
-          apps: mobileApps,
-          sessions: mobileSessions,
-          quizzes: mobileQuizzes,
-          deviceDistribution,
-          geographicData
-        },
-        overviewStats,
+        ...analyticsData,
         exportDate: new Date().toISOString(),
         timeRange
       }
@@ -233,20 +71,17 @@ const AnalyticsScreen: React.FC = () => {
       link.click()
       
       URL.revokeObjectURL(url)
-
-      analyticsService.trackCustomEvent('analytics_export', { timeRange, includesMobile: true })
     } catch (err) {
       console.error('Error exporting data:', err)
-      analyticsService.trackError(err as Error, 'Analytics Export')
     }
   }
 
-  if (loading && quizAnalytics.length === 0 && mobileApps.length === 0) {
+  if (loading && !analyticsData) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingSpinner} />
-          <p className={styles.loadingText}>Loading analytics data...</p>
+      <div style={styles.container}>
+        <div style={styles.loadingContainer}>
+          <div style={styles.loadingSpinner} />
+          <p style={styles.loadingText}>Loading analytics data...</p>
         </div>
       </div>
     )
@@ -254,12 +89,12 @@ const AnalyticsScreen: React.FC = () => {
 
   if (error) {
     return (
-      <div className={styles.container}>
-        <div className={styles.errorContainer}>
-          <div className={styles.errorIcon}>⚠️</div>
-          <h2 className={styles.errorTitle}>Error Loading Analytics</h2>
-          <p className={styles.errorMessage}>{error}</p>
-          <button className={styles.retryButton} onClick={loadAnalyticsData}>
+      <div style={styles.container}>
+        <div style={styles.errorContainer}>
+          <div style={styles.errorIcon}>⚠️</div>
+          <h2 style={styles.errorTitle}>Error Loading Analytics</h2>
+          <p style={styles.errorMessage}>{error}</p>
+          <button style={styles.retryButton} onClick={loadAnalyticsData}>
             Try Again
           </button>
         </div>
@@ -267,8 +102,23 @@ const AnalyticsScreen: React.FC = () => {
     )
   }
 
+  if (!analyticsData) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.errorContainer}>
+          <div style={styles.errorIcon}>📊</div>
+          <h2 style={styles.errorTitle}>No Data Available</h2>
+          <p style={styles.errorMessage}>No analytics data found for the selected time range.</p>
+          <button style={styles.retryButton} onClick={loadAnalyticsData}>
+            Refresh
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className={styles.container}>
+    <div style={styles.container}>
       <AnalyticsHeader
         timeRange={timeRange}
         setTimeRange={setTimeRange}
@@ -277,220 +127,357 @@ const AnalyticsScreen: React.FC = () => {
         onExport={handleExportData}
       />
 
-      {/* {realtimeStats && (
-        <RealtimeStatsWidget stats={realtimeStats} />
-      )} */}
-
-      <div className={styles.content}>
+      <div style={styles.content}>
         {activeTab === 'overview' && (
-          <div className={styles.overviewTab}>
-            <StatsOverview stats={overviewStats} />
+          <div style={styles.overviewTab}>
+            <FirebaseStatsOverview data={analyticsData} />
             
-            <div className={styles.chartsGrid}>
-              {/* <div className={styles.chartCard}>
-                <QuizPerformanceChart 
-                  data={quizAnalytics} 
+            <div style={styles.chartsGrid}>
+              <div style={styles.chartCard}>
+                <EventsChart 
+                  events={analyticsData.events} 
                   timeRange={timeRange}
-                />
-              </div> */}
-              
-              {/* <div className={styles.chartCard}>
-                <UserEngagementChart 
-                  data={sessionAnalytics} 
-                  timeRange={timeRange}
-                />
-              </div> */}
-            </div>
-
-            {/* <div className={styles.tablesGrid}>
-              <TopQuizzesTable quizzes={quizAnalytics.slice(0, 10)} />
-              <UserActivityHeatmap sessions={sessionAnalytics} />
-            </div> */}
-          </div>
-        )}
-
-        {activeTab === 'mobile' && (
-          <div className={styles.mobileTab}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Mobile Applications Analytics</h2>
-              <p className={styles.sectionSubtitle}>
-                Comprehensive analytics for Android and iOS applications
-              </p>
-            </div>
-
-            <MobileAppsOverview 
-              apps={mobileApps} 
-              loading={loading}
-            />
-            
-            <div className={styles.mobileGrid}>
-              <div className={styles.mobileCard}>
-                <MobileDeviceDistribution 
-                  data={deviceDistribution}
-                  loading={loading}
                 />
               </div>
               
-              <div className={styles.mobileCard}>
-                <div className={styles.geographicSection}>
-                  <h3 className={styles.geographicTitle}>Geographic Distribution</h3>
-                  <div className={styles.countryList}>
-                    {Object.entries(geographicData).slice(0, 10).map(([country, count]) => (
-                      <div key={country} className={styles.countryItem}>
-                        <span className={styles.countryName}>{country}</span>
-                        <span className={styles.countryCount}>{count} users</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              <div style={styles.chartCard}>
+                <ScreenViewsChart 
+                  screens={analyticsData.topScreens} 
+                  timeRange={timeRange}
+                />
               </div>
             </div>
 
-            {mobileQuizzes.length > 0 && (
-              <div className={styles.mobileQuizSection}>
-                <h3 className={styles.sectionSubtitle}>Mobile Quiz Performance</h3>
-                <div className={styles.mobileQuizGrid}>
-                  {mobileQuizzes.slice(0, 6).map((quiz) => (
-                    <div key={`${quiz.quizId}_${quiz.platform}`} className={styles.mobileQuizCard}>
-                      <div className={styles.mobileQuizHeader}>
-                        <span className={styles.mobileQuizIcon}>
-                          {quiz.platform === 'android' ? '🤖' : '📱'}
-                        </span>
-                        <span className={styles.mobileQuizTitle}>Quiz {quiz.quizId}</span>
-                        <span className={styles.mobileQuizPlatform}>{quiz.platform}</span>
-                      </div>
-                      <div className={styles.mobileQuizStats}>
-                        <div className={styles.mobileQuizStat}>
-                          <span className={styles.mobileQuizStatValue}>{quiz.completions}</span>
-                          <span className={styles.mobileQuizStatLabel}>Completions</span>
-                        </div>
-                        <div className={styles.mobileQuizStat}>
-                          <span className={styles.mobileQuizStatValue}>{quiz.averageScore.toFixed(1)}</span>
-                          <span className={styles.mobileQuizStatLabel}>Avg Score</span>
-                        </div>
-                        <div className={styles.mobileQuizStat}>
-                          <span className={styles.mobileQuizStatValue}>{quiz.completionRate.toFixed(1)}%</span>
-                          <span className={styles.mobileQuizStatLabel}>Completion Rate</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            <div style={styles.metricsCard}>
+              <UserEngagementMetrics 
+                overview={analyticsData.overview}
+                events={analyticsData.events}
+              />
+            </div>
           </div>
         )}
 
-        {activeTab === 'quizzes' && (
-          <div className={styles.quizzesTab}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Quiz Performance Analysis</h2>
-              <p className={styles.sectionSubtitle}>
-                Detailed insights into quiz completion rates, scores, and user engagement
+        {activeTab === 'events' && (
+          <div style={styles.eventsTab}>
+            <div style={styles.sectionHeader}>
+              <h2 style={styles.sectionTitle}>Event Analytics</h2>
+              <p style={styles.sectionSubtitle}>
+                Detailed breakdown of user events and interactions
               </p>
             </div>
 
-            {/* <QuizPerformanceChart 
-              data={quizAnalytics} 
+            <EventsChart 
+              events={analyticsData.events} 
               timeRange={timeRange}
               detailed={true}
             />
-            
-            <TopQuizzesTable 
-              quizzes={quizAnalytics} 
-              showAllColumns={true}
-            /> */}
           </div>
         )}
 
-        {/* {activeTab === 'users' && (
-          <div className={styles.usersTab}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>User Engagement Analysis</h2>
-              <p className={styles.sectionSubtitle}>
-                User behavior patterns, session analytics, and engagement metrics
+        {activeTab === 'screens' && (
+          <div style={styles.screensTab}>
+            <div style={styles.sectionHeader}>
+              <h2 style={styles.sectionTitle}>Screen Analytics</h2>
+              <p style={styles.sectionSubtitle}>
+                Most viewed screens and user navigation patterns
               </p>
             </div>
 
-            <UserEngagementChart 
-              data={sessionAnalytics} 
+            <ScreenViewsChart 
+              screens={analyticsData.topScreens} 
               timeRange={timeRange}
               detailed={true}
             />
-            
-            <UserActivityHeatmap 
-              sessions={sessionAnalytics}
-              detailed={true}
-            />
           </div>
-        )} */}
+        )}
 
-        {activeTab === 'performance' && (
-          <div className={styles.performanceTab}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Performance Metrics</h2>
-              <p className={styles.sectionSubtitle}>
-                Application performance, load times, and technical metrics
+        {activeTab === 'users' && (
+          <div style={styles.usersTab}>
+            <div style={styles.sectionHeader}>
+              <h2 style={styles.sectionTitle}>User Analytics</h2>
+              <p style={styles.sectionSubtitle}>
+                User acquisition, retention, and behavior insights
               </p>
             </div>
 
-            <div className={styles.performanceGrid}>
-              <div className={styles.performanceCard}>
-                <h3>Web Application Performance</h3>
-                <div className={styles.comingSoon}>
-                  <p>Web performance metrics coming soon...</p>
+            <div style={styles.userMetricsGrid}>
+              <div style={styles.userMetricCard}>
+                <h3 style={styles.metricTitle}>User Acquisition</h3>
+                <div style={styles.metricValue}>{analyticsData.overview.newUsers}</div>
+                <div style={styles.metricLabel}>New Users</div>
+                <div style={styles.metricProgress}>
+                  <div 
+                    style={{
+                      ...styles.metricProgressFill,
+                      width: `${(analyticsData.overview.newUsers / analyticsData.overview.totalUsers) * 100}%`,
+                      backgroundColor: colors.green
+                    }}
+                  />
                 </div>
               </div>
-              
-              <div className={styles.performanceCard}>
-                <h3>Mobile Application Performance</h3>
-                <div className={styles.comingSoon}>
-                  <p>Mobile performance metrics coming soon...</p>
+
+              <div style={styles.userMetricCard}>
+                <h3 style={styles.metricTitle}>User Retention</h3>
+                <div style={styles.metricValue}>{(100 - analyticsData.overview.bounceRate * 100).toFixed(1)}%</div>
+                <div style={styles.metricLabel}>Retention Rate</div>
+                <div style={styles.metricProgress}>
+                  <div 
+                    style={{
+                      ...styles.metricProgressFill,
+                      width: `${100 - analyticsData.overview.bounceRate * 100}%`,
+                      backgroundColor: colors.blue
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={styles.userMetricCard}>
+                <h3 style={styles.metricTitle}>Active Users</h3>
+                <div style={styles.metricValue}>{analyticsData.overview.activeUsers}</div>
+                <div style={styles.metricLabel}>Currently Active</div>
+                <div style={styles.metricProgress}>
+                  <div 
+                    style={{
+                      ...styles.metricProgressFill,
+                      width: `${(analyticsData.overview.activeUsers / analyticsData.overview.totalUsers) * 100}%`,
+                      backgroundColor: colors.yellow
+                    }}
+                  />
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        {activeTab === 'errors' && (
-          <div className={styles.errorsTab}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Error Logs & Monitoring</h2>
-              <p className={styles.sectionSubtitle}>
-                Application errors, crashes, and system monitoring
+        {activeTab === 'engagement' && (
+          <div style={styles.engagementTab}>
+            <div style={styles.sectionHeader}>
+              <h2 style={styles.sectionTitle}>User Engagement</h2>
+              <p style={styles.sectionSubtitle}>
+                Session duration, bounce rate, and engagement metrics
               </p>
             </div>
 
-            <div className={styles.errorsGrid}>
-              {/* <div className={styles.errorCard}>
-                <h3>Web Application Errors</h3>
-                <ErrorLogsTable timeRange={timeRange} />
-              </div> */}
-              
-              <div className={styles.errorCard}>
-                <h3>Mobile Application Crashes</h3>
-                <div className={styles.comingSoon}>
-                  <p>Mobile crash reports coming soon...</p>
-                </div>
-              </div>
-            </div>
+            <UserEngagementMetrics 
+              overview={analyticsData.overview}
+              events={analyticsData.events}
+              detailed={true}
+            />
           </div>
         )}
       </div>
 
-      <div className={styles.footer}>
-        <div className={styles.footerContent}>
-          <p className={styles.footerText}>
-            Data refreshed {loading ? 'now' : 'a few seconds ago'} • 
-            Showing data for {timeRange} • 
-            {overviewStats.totalSessions} total sessions analyzed •
-            {mobileApps.length} mobile apps monitored
+      <div style={styles.footer}>
+        <div style={styles.footerContent}>
+          <p style={styles.footerText}>
+            Data from {analyticsData.period.startDate} to {analyticsData.period.endDate} • 
+            {analyticsData.overview.sessions} total sessions • 
+            {analyticsData.overview.totalUsers} total users •
+            {analyticsData.isDemo ? ' Demo Data' : ' Live Data'}
           </p>
-          {/* <ExportDataButton onExport={handleExportData} /> */}
         </div>
       </div>
     </div>
   )
+}
+
+const styles = {
+  container: {
+    minHeight: '100vh',
+    background: `linear-gradient(135deg, ${colors.bg} 0%, #1a1a1a 100%)`,
+    color: colors.white
+  },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '50vh',
+    gap: 20
+  },
+  loadingSpinner: {
+    width: 48,
+    height: 48,
+    border: `4px solid ${colors.border}`,
+    borderTop: `4px solid ${colors.yellow}`,
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite'
+  },
+  loadingText: {
+    fontSize: 18,
+    color: colors.grey,
+    margin: 0
+  },
+  errorContainer: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '50vh',
+    gap: 16,
+    textAlign: 'center' as const,
+    padding: 40
+  },
+  errorIcon: {
+    fontSize: 48,
+    marginBottom: 8
+  },
+  errorTitle: {
+    fontSize: 24,
+    fontWeight: 700,
+    color: colors.red,
+    margin: 0
+  },
+  errorMessage: {
+    fontSize: 16,
+    color: colors.grey,
+    margin: 0,
+    maxWidth: 400
+  },
+  retryButton: {
+    padding: '12px 24px',
+    backgroundColor: colors.yellow,
+    color: colors.black,
+    border: 'none',
+    borderRadius: 8,
+    fontSize: 16,
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
+  },
+  content: {
+    padding: '0 24px 24px',
+    maxWidth: 1400,
+    margin: '0 auto'
+  },
+  overviewTab: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: 24
+  },
+  eventsTab: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: 24
+  },
+  screensTab: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: 24
+  },
+  usersTab: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: 24
+  },
+  engagementTab: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: 24
+  },
+  sectionHeader: {
+    textAlign: 'center' as const,
+    marginBottom: 32
+  },
+  sectionTitle: {
+    fontSize: 28,
+    fontWeight: 700,
+    color: colors.white,
+    margin: '0 0 8px 0',
+    letterSpacing: '-0.5px'
+  },
+  sectionSubtitle: {
+    fontSize: 16,
+    color: colors.grey,
+    margin: 0,
+    maxWidth: 600,
+    marginLeft: 'auto',
+    marginRight: 'auto'
+  },
+  chartsGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: 24,
+    marginBottom: 32
+  },
+  chartCard: {
+    background: `linear-gradient(135deg, ${colors.greyhard} 0%, ${colors.bg} 100%)`,
+    borderRadius: 16,
+    border: `2px solid ${colors.border}`,
+    padding: 24,
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    transition: 'all 0.3s ease'
+  },
+  metricsCard: {
+    background: `linear-gradient(135deg, ${colors.greyhard} 0%, ${colors.bg} 100%)`,
+    borderRadius: 16,
+    border: `2px solid ${colors.border}`,
+    padding: 24,
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+  },
+  userMetricsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: 24
+  },
+  userMetricCard: {
+    background: `linear-gradient(135deg, ${colors.greyhard} 0%, ${colors.bg} 100%)`,
+    border: `2px solid ${colors.border}`,
+    borderRadius: 16,
+    padding: 24,
+    textAlign: 'center' as const,
+    transition: 'all 0.3s ease'
+  },
+  metricTitle: {
+    fontSize: 16,
+    fontWeight: 600,
+    color: colors.grey,
+    margin: '0 0 16px 0'
+  },
+  metricValue: {
+    fontSize: 32,
+    fontWeight: 700,
+    color: colors.white,
+    margin: '0 0 8px 0',
+    letterSpacing: '-1px'
+  },
+  metricLabel: {
+    fontSize: 14,
+    color: colors.grey,
+    margin: '0 0 16px 0'
+  },
+  metricProgress: {
+    width: '100%',
+    height: 6,
+    backgroundColor: colors.border,
+    borderRadius: 3,
+    overflow: 'hidden' as const
+  },
+  metricProgressFill: {
+    height: '100%',
+    borderRadius: 3,
+    transition: 'width 1.5s ease-in-out'
+  },
+  footer: {
+    background: colors.greyhard,
+    borderTop: `2px solid ${colors.border}`,
+    padding: '20px 24px',
+    marginTop: 40
+  },
+  footerContent: {
+    maxWidth: 1400,
+    margin: '0 auto',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 20
+  },
+  footerText: {
+    fontSize: 14,
+    color: colors.grey,
+    margin: 0,
+    textAlign: 'center' as const
+  }
 }
 
 export default AnalyticsScreen
