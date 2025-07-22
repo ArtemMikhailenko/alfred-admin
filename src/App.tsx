@@ -7,16 +7,18 @@ import {
 } from 'react-router-dom'
 import { useState } from 'react'
 import LoginScreen from './screens/LoginScreen'
-import CourseDetailScreen from './screens/CourseDetailScreen' // Детальный экран курса
+import CourseDetailScreen from './screens/CourseDetailScreen'
 import { Provider } from 'react-redux'
 import { store } from './redux/store'
 import ChapterScreen from './screens/ChapterScreen'
 import PrivateRoute from './components/PrivateRoute'
 import SwipeTradeScreen from './screens/SwipeTradeScreen'
+import UsersScreen from './screens/UsersScreen' // New import
 import { Toaster } from 'react-hot-toast'
 import MainLayout from './components/Layout/MainLayout'
 import { Language } from './constants/interfaces'
 import './styles/globals.css'
+import './styles/users.css' // Import the new CSS
 import DashboardScreen from './screens/DashboardScreen'
 import CoursesScreen from './screens/CourseScreen'
 import AnalyticsScreen from './components/analytics/AnalyticsScreen'
@@ -35,11 +37,16 @@ const AppContent = () => {
   }
 
   const handleCreateAdmin = () => {
-    // This will be handled by each individual screen
+    // Navigate to users page instead of showing modal
+    window.location.href = '/users'
   }
 
   const handleOpenSwipeTrade = () => {
     window.location.href = '/swipetrade'
+  }
+
+  const handleOpenUsers = () => {
+    window.location.href = '/users'
   }
 
   return (
@@ -54,6 +61,7 @@ const AppContent = () => {
           onCreateCourse={handleCreateCourse}
           onCreateAdmin={handleCreateAdmin}
           onOpenSwipeTrade={handleOpenSwipeTrade}
+          onOpenUsers={handleOpenUsers} // Add this prop to MainLayout
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           language={language}
@@ -87,6 +95,25 @@ const AppContent = () => {
               }
             />
             
+            {/* Страница управления пользователями */}
+            <Route
+              path="/users"
+              element={
+                <PrivateRoute
+                  element={
+                    <UsersScreen
+                      searchTerm={searchTerm}
+                      onSearchChange={setSearchTerm}
+                      language={language}
+                      onLanguageChange={setLanguage}
+                      viewMode={viewMode}
+                      onViewModeChange={setViewMode}
+                    />
+                  }
+                />
+              }
+            />
+            
             {/* Страница конкретного курса с главами */}
             <Route
               path="/course/:courseId"
@@ -98,10 +125,13 @@ const AppContent = () => {
               path="/chapter/:courseId/:chapterId"
               element={<PrivateRoute element={<ChapterScreen />} />}
             />
+            
+            {/* Analytics */}
             <Route
-            path="/analytics"
-            element={<PrivateRoute element={<AnalyticsScreen />} />}
-          />
+              path="/analytics"
+              element={<PrivateRoute element={<AnalyticsScreen />} />}
+            />
+            
             {/* Swipe Trade */}
             <Route
               path="/swipetrade"

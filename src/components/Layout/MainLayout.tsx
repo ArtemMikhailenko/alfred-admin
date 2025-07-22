@@ -17,21 +17,22 @@ import {
   Plus,
   UserPlus,
   Grid,
-  List
+  List,
+  BarChart3
 } from 'lucide-react'
 import { RootState } from '../../redux'
 import { clearTokens } from '../../redux/tokens'
 import { Language } from '../../constants/interfaces'
-import Button from '../Button'
-import Input from '../Input'
 import toast from 'react-hot-toast'
 import './styles.css'
 import LanguageSelectorBlock from '../LanguageSelectorBlock/LanguageSelectorBlock'
+
 interface MainLayoutProps {
   children: React.ReactNode
   onCreateCourse?: () => void
   onCreateAdmin?: () => void
   onOpenSwipeTrade?: () => void
+  onOpenUsers?: () => void // Added this prop
   searchTerm?: string
   onSearchChange?: (value: string) => void
   language?: Language
@@ -45,6 +46,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   onCreateCourse,
   onCreateAdmin,
   onOpenSwipeTrade,
+  onOpenUsers, // Added this prop
   searchTerm = '',
   onSearchChange,
   language = 'ua',
@@ -85,14 +87,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       label: 'Users',
       icon: Users,
       path: '/users',
-      description: 'User management'
+      description: 'User management and admins'
     },
     {
       id: 'analytics',
       label: 'Analytics',
-      icon: Users,
+      icon: BarChart3,
       path: '/analytics',
-      description: 'User management'
+      description: 'Analytics and reports'
     },
     {
       id: 'settings',
@@ -135,6 +137,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       breadcrumbs.push({ label: 'Courses', path: '/courses' })
     } else if (pathSegments[0] === 'swipetrade') {
       breadcrumbs.push({ label: 'Swipe Trade', path: '/swipetrade' })
+    } else if (pathSegments[0] === 'users') {
+      breadcrumbs.push({ label: 'Users', path: '/users' })
+    } else if (pathSegments[0] === 'analytics') {
+      breadcrumbs.push({ label: 'Analytics', path: '/analytics' })
     } else if (pathSegments[0] === 'course') {
       breadcrumbs.push({ label: 'Courses', path: '/courses' })
       breadcrumbs.push({ label: `Course ${pathSegments[1]}`, path: `/course/${pathSegments[1]}` })
@@ -145,6 +151,51 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     }
     
     return breadcrumbs
+  }
+
+  // Quick actions based on current page
+  const getPageActions = () => {
+    const path = location.pathname
+    const actions = []
+
+    if (path === '/courses' && onCreateCourse) {
+      actions.push({
+        label: 'New Course',
+        icon: Plus,
+        onClick: onCreateCourse,
+        variant: 'primary' as const
+      })
+    }
+
+    if (path === '/users' && onCreateAdmin) {
+      actions.push({
+        label: 'Add Admin',
+        icon: UserPlus,
+        onClick: onCreateAdmin,
+        variant: 'primary' as const
+      })
+    }
+
+    if (path === '/swipetrade' && onOpenSwipeTrade) {
+      actions.push({
+        label: 'New Quiz',
+        icon: Plus,
+        onClick: onOpenSwipeTrade,
+        variant: 'primary' as const
+      })
+    }
+
+    // View mode toggle for supported pages
+    if ((path === '/courses' || path === '/users') && onViewModeChange) {
+      actions.push({
+        label: viewMode === 'grid' ? 'List View' : 'Grid View',
+        icon: viewMode === 'grid' ? List : Grid,
+        onClick: () => onViewModeChange(viewMode === 'grid' ? 'list' : 'grid'),
+        variant: 'secondary' as const
+      })
+    }
+
+    return actions
   }
 
   return (
@@ -237,7 +288,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
             </div>
           </div>
 
-          {/* Simple Header with Search and Language */}
+          {/* Header Center with Search */}
           <div className="header-center">
             <div className="search-container">
               <Search size={20} className="search-icon" />
@@ -251,7 +302,22 @@ const MainLayout: React.FC<MainLayoutProps> = ({
             </div>
           </div>
 
+          {/* Header Right */}
           <div className="header-right">
+            {/* Page Actions */}
+            <div className="page-actions">
+              {getPageActions().map((action, index) => (
+                <button
+                  key={index}
+                  onClick={action.onClick}
+                  className={`action-btn ${action.variant === 'primary' ? 'action-btn-primary' : 'action-btn-secondary'}`}
+                >
+                  <action.icon size={16} />
+                  <span>{action.label}</span>
+                </button>
+              ))}
+            </div>
+
             <LanguageSelectorBlock 
               language={language} 
               setLanguage={onLanguageChange || (() => {})} 
@@ -273,9 +339,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({
 
         {/* Page Content */}
         <main className="page-content">
-          <div className="content-header">
-            <h1 className="page-title">{getCurrentPageTitle()}</h1>
-          </div>
+          {/* <div className="content-header">
+            <div className="content-header-left">
+              <h1 className="page-title">{getCurrentPageTitle()}</h1>
+              <p className="page-description">
+                {menuItems.find(item => isActiveRoute(item.path))?.description}
+              </p>
+            </div>
+          </div> */}
           <div className="content-body">
             {children}
           </div>
@@ -292,6 +363,5 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     </div>
   )
 }
-
 
 export default MainLayout

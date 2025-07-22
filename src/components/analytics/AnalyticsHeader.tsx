@@ -108,7 +108,7 @@ const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({
 
 const styles = {
   container: {
-    background: `linear-gradient(135deg, ${colors.greyhard} 0%, ${colors.bg} 100%)`,
+    // background: `linear-gradient(135deg, ${colors.greyhard} 0%, ${colors.bg} 100%)`,
     borderBottom: `2px solid ${colors.border}`,
     position: 'sticky' as const,
     top: 0,
