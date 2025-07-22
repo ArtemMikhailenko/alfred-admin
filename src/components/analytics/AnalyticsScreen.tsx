@@ -8,12 +8,12 @@ import colors from '../../constants/colors'
 import AnalyticsHeader from './AnalyticsHeader'
 import FirebaseStatsOverview from './FirebaseStatsOverview'
 import EventsChart from './EventsChart'
-import ScreenViewsChart from './ScreenViewsChart'
+// import ScreenViewsChart from './ScreenViewsChart'
 import UserEngagementMetrics from './UserEngagementMetrics'
 
 
 type TimeRange = '7d' | '30d' | '90d' | '1y'
-type AnalyticsTab = 'overview' | 'events' | 'screens' | 'users' | 'engagement'
+type AnalyticsTab = 'overview' | 'events' | 'users' | 'engagement'
 
 const AnalyticsScreen: React.FC = () => {
   const tokens = useSelector((state: RootState) => state.tokens)
@@ -140,12 +140,12 @@ const AnalyticsScreen: React.FC = () => {
                 />
               </div>
               
-              <div style={styles.chartCard}>
+              {/* <div style={styles.chartCard}>
                 <ScreenViewsChart 
                   screens={analyticsData.topScreens} 
                   timeRange={timeRange}
                 />
-              </div>
+              </div> */}
             </div>
 
             <div style={styles.metricsCard}>
@@ -174,7 +174,7 @@ const AnalyticsScreen: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'screens' && (
+        {/* {activeTab === 'screens' && (
           <div style={styles.screensTab}>
             <div style={styles.sectionHeader}>
               <h2 style={styles.sectionTitle}>Screen Analytics</h2>
@@ -189,7 +189,7 @@ const AnalyticsScreen: React.FC = () => {
               detailed={true}
             />
           </div>
-        )}
+        )} */}
 
         {activeTab === 'users' && (
           <div style={styles.usersTab}>
@@ -396,7 +396,7 @@ const styles = {
   },
   chartsGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
+    // gridTemplateColumns: '1fr 1fr',
     gap: 24,
     marginBottom: 32
   },

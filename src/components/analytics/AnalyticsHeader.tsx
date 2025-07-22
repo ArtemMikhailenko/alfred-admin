@@ -3,7 +3,7 @@ import colors from '../../constants/colors'
 import { useNavigate } from 'react-router-dom'
 
 type TimeRange = '7d' | '30d' | '90d' | '1y'
-type AnalyticsTab = 'overview' | 'events' | 'screens' | 'users' | 'engagement'
+type AnalyticsTab = 'overview' | 'events'  | 'users' | 'engagement'
 
 interface AnalyticsHeaderProps {
   timeRange: TimeRange
@@ -32,7 +32,6 @@ const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({
   const tabs = [
     { value: 'overview', label: 'Overview', icon: '📊' },
     { value: 'events', label: 'Events', icon: '⚡' },
-    { value: 'screens', label: 'Screens', icon: '📱' },
     { value: 'users', label: 'Users', icon: '👥' },
     { value: 'engagement', label: 'Engagement', icon: '🎯' }
   ]
@@ -233,7 +232,7 @@ const styles = {
     paddingRight: 32
   },
   tabNavigation: {
-    padding: '0 24px',
+    padding: '5px 24px',
     overflowX: 'auto' as const
   },
   tabList: {
@@ -246,7 +245,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: 8,
-    padding: '12px 20px',
+    padding: '8px 20px',
     background: 'none',
     border: 'none',
     cursor: 'pointer',

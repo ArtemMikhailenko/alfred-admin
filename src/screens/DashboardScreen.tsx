@@ -170,7 +170,7 @@ const DashboardScreen = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className={styles.statsGrid}>
+      {/* <div className={styles.statsGrid}>
         {stats.map((stat, index) => (
           <div key={index} className={styles.statCard}>
             <div className={styles.statHeader}>
@@ -188,11 +188,11 @@ const DashboardScreen = () => {
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
 
-      {/* Main Content Grid */}
-      <div className={styles.mainGrid}>
-        {/* Quick Actions */}
+     
+      {/* <div className={styles.mainGrid}>
+        
         <div className={styles.quickActionsCard}>
           <h3 className={styles.cardTitle}>Quick Actions</h3>
           <div className={styles.quickActionsGrid}>
@@ -213,7 +213,7 @@ const DashboardScreen = () => {
           </div>
         </div>
 
-        {/* Recent Activity */}
+     
         <div className={styles.activityCard}>
           <div className={styles.cardHeader}>
             <h3 className={styles.cardTitle}>Recent Activity</h3>
@@ -239,7 +239,7 @@ const DashboardScreen = () => {
           </div>
         </div>
 
-        {/* Platform Overview */}
+      
         <div className={styles.overviewCard}>
           <h3 className={styles.cardTitle}>Platform Overview</h3>
           <div className={styles.overviewStats}>
@@ -266,10 +266,10 @@ const DashboardScreen = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* System Status */}
-      <div className={styles.systemStatus}>
+      {/* <div className={styles.systemStatus}>
         <h3 className={styles.cardTitle}>System Status</h3>
         <div className={styles.statusGrid}>
           <div className={styles.statusItem}>
@@ -293,7 +293,7 @@ const DashboardScreen = () => {
             <span className={styles.statusValue}>Online</span>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }
