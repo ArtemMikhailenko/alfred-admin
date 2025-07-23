@@ -1,5 +1,7 @@
 import React from 'react'
-import styles from './ChartParamsBlock.module.css'
+import { styles } from './styles'
+import globalStyles from '../../constants/globalStyles'
+import colors from '../../constants/colors'
 
 export const intervalMap: Record<string, number> = {
   '1': 60_000,
@@ -24,7 +26,7 @@ export const intervals: { label: string; value: string }[] = [
   { label: '2 h', value: '120' },
   { label: '6 h', value: '360' },
   { label: '12 h', value: '720' },
-  { label: '1 day', value: 'D' },
+  { label: '1 day ', value: 'D' },
   { label: '1 week', value: 'W' },
   { label: '1 month', value: 'M' },
 ]
@@ -42,81 +44,66 @@ export const symbols: { label: string; value: string }[] = [
   { label: 'DOT/USDT', value: 'DOTUSDT' },
 ]
 
-interface ChartParamsBlockProps {
-  timeframe: string
-  setTimeframe: (timeframe: string) => void
-  symbol: string
-  setSymbol: (symbol: string) => void
-  onRequest: () => void
-  hasChanged: boolean
-}
-
-const ChartParamsBlock: React.FC<ChartParamsBlockProps> = ({
+function ChartParamsBlock({
   timeframe,
   setTimeframe,
   symbol,
   setSymbol,
   onRequest,
   hasChanged,
-}) => {
+}: {
+  timeframe: string
+  setTimeframe: (i: string) => void
+  symbol: string
+  setSymbol: (i: string) => void
+  onRequest: () => void
+  hasChanged: boolean
+}) {
   return (
-    <div className={styles.container}>
-      <div className={styles.inputGroup}>
-        <label className={styles.label}>Timeframe</label>
-        <select
-          className={styles.select}
-          value={timeframe}
-          onChange={(e) => setTimeframe(e.target.value)}
-        >
-          {intervals.map((interval) => (
-            <option key={interval.value} value={interval.value}>
-              {interval.label}
-            </option>
-          ))}
-        </select>
-      </div>
+    <>
+      <div style={{ ...styles.row, marginBottom: 8 }}>
+        <div style={styles.column}>
+          <p style={styles.chartInputTitle}>Timeframe</p>
+          <select
+            style={styles.chartInput}
+            value={timeframe}
+            onChange={(e) => setTimeframe(e.target.value)}
+          >
+            {intervals.map((i) => (
+              <option key={i.value} value={i.value}>
+                {i.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <div className={styles.inputGroup}>
-        <label className={styles.label}>Trading Pair</label>
-        <select
-          className={styles.select}
-          value={symbol}
-          onChange={(e) => setSymbol(e.target.value)}
+        <div style={styles.column}>
+          <p style={styles.chartInputTitle}>Pair</p>
+          <select
+            style={styles.chartInput}
+            value={symbol}
+            onChange={(e) => setSymbol(e.target.value)}
+          >
+            {symbols.map((i) => (
+              <option key={i.value} value={i.value}>
+                {i.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <button
+          style={{
+            ...globalStyles.submitButton,
+            backgroundColor: hasChanged ? colors.yellow : colors.greyhard,
+            cursor: hasChanged ? 'pointer' : 'default',
+          }}
+          onClick={onRequest}
+          disabled={!hasChanged}
         >
-          {symbols.map((symbolOption) => (
-            <option key={symbolOption.value} value={symbolOption.value}>
-              {symbolOption.label}
-            </option>
-          ))}
-        </select>
+          Make chart
+        </button>
       </div>
-
-      <button
-        className={`${styles.generateButton} ${
-          hasChanged ? styles.active : styles.disabled
-        }`}
-        onClick={onRequest}
-        disabled={!hasChanged}
-        type="button"
-      >
-        <svg 
-          width="20" 
-          height="20" 
-          viewBox="0 0 20 20" 
-          fill="none"
-          className={styles.buttonIcon}
-        >
-          <path 
-            d="M13.5 3L16 5.5M4.5 16.5L16 5L15 4L3.5 15.5L4.5 16.5Z" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          />
-        </svg>
-        Generate Chart
-      </button>
-    </div>
+    </>
   )
 }
 

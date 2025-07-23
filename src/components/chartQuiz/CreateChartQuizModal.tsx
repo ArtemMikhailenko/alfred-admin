@@ -1,22 +1,11 @@
-import React, { useCallback, useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { Language, languagesObjString } from '../../constants/interfaces'
-import { TokensState } from '../../redux/tokens'
-import { PostSwipeTrade, UpdateSwipeTrade } from '../../actions/actions'
-import { ReloginAndRetry } from '../ReloginAndRetry'
-
-// Component imports
+import { useCallback, useState } from 'react'
 import ChartModalHeader from './ChartModalHeader'
+import { Language, languagesObjString } from '../../constants/interfaces'
 import ChartModalFooter from './ChartModalFooter'
 import CandlestickChart from './CandlestickChart'
 import AnswerPickerBlock from './AnswerPickerBlock'
 import DatePickerBlock from './DatePickerBlock'
 import ChartParamsBlock, { intervalMap } from './ChartParamsBlock'
-import TitleInputBlock from './TitleInputBlock'
-import DescriptionPreview from './DescriptionPreview'
-import DescriptionInput from './DescriptionInput'
-
-// Function imports
 import {
   Answer,
   AnswerCheck,
@@ -33,57 +22,60 @@ import {
   TitleCheck,
   WagmiCandle,
 } from './functions'
+import TitleInputBlock from './TitleInputBlock'
+import {
+  PostSwipeTrade,
+  UpdateSwipeTrade,
+} from '../../actions/actions'
+import { TokensState } from '../../redux/tokens'
+import { useDispatch } from 'react-redux'
+import DescriptionPreview from './DescriptionPreview'
+import DescriptionInput from './DescriptionInput'
+import { ReloginAndRetry } from '../ReloginAndRetry'
+import colors from '../../constants/colors'
+import { CSSProperties } from 'react'
 
-// Styles
-import styles from './CreateChartQuizModal.module.css'
-
-interface CreateChartQuizModalProps {
-  initialValue: SwipeTradeQuizInterface | null
-  onClose: (isUpdated: boolean) => void
-  tokens: TokensState
-}
-
-const CreateChartQuizModal: React.FC<CreateChartQuizModalProps> = ({
+const CreateChartQuizModal = ({
   initialValue,
   onClose,
   tokens,
+}: {
+  initialValue: SwipeTradeQuizInterface | null
+  onClose: (isUpdated: boolean) => void
+  tokens: TokensState
 }) => {
   const dispatch = useDispatch()
-  
-  // State management
   const [language, setLanguage] = useState<Language>('ua')
+
   const [isActive, setIsActive] = useState<boolean>(
-    initialValue ? initialValue.isActive : true
+    initialValue ? initialValue?.isActive : true
   )
   const [title, setTitle] = useState<string>(initialValue?.title || '')
   const [description, setDescription] = useState<Record<Language, string>>(
     initialValue?.description || languagesObjString
   )
 
-  // Chart parameters
   const [symbol, setSymbol] = useState(initialValue?.settings.pair || 'BTCUSDT')
   const [startDate, setStartDate] = useState<string>(
     initialValue?.settings.startDate
-      ? ParseDateTimeString(initialValue.settings.startDate)
+      ? ParseDateTimeString(initialValue?.settings.startDate)
       : '2024-01-01T00:00'
   )
   const [endDate, setEndDate] = useState<string>(
     initialValue?.settings.endDate
-      ? ParseDateTimeString(initialValue.settings.endDate)
+      ? ParseDateTimeString(initialValue?.settings.endDate)
       : '2024-01-01T01:00'
   )
   const [timeframe, setTimeframe] = useState<string>(
     initialValue?.settings.timeframe
-      ? FormatIntervalValue(initialValue.settings.timeframe)
+      ? FormatIntervalValue(initialValue?.settings.timeframe)
       : '1'
   )
 
-  // Chart data
   const [candles, setCandles] = useState<WagmiCandle[]>(
     initialValue?.candleData || []
   )
 
-  // Quiz settings
   const [answer, setAnswer] = useState<Answer>(
     initialValue?.settings.answer || null
   )
@@ -94,35 +86,27 @@ const CreateChartQuizModal: React.FC<CreateChartQuizModalProps> = ({
   const [points, setPoints] = useState<string>(
     initialValue?.settings.points.toString() || '0'
   )
-  
-  // UI state
   const [hasChanged, setHasChanged] = useState<boolean>(
     initialValue?.id ? false : true
   )
   const [checkDescription, setCheckDescription] = useState<boolean>(false)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  // Handlers
   const handleClose = () => {
     onClose(true)
   }
 
-  const generateChart = async () => {
-    if (isLoading) return
-    
-    setIsLoading(true)
+  const bybitRequest = async () => {
     try {
       const start = new Date(startDate)
       const end = new Date(endDate)
       const intervalMs = intervalMap[timeframe]
 
       if (start.getTime() > end.getTime()) {
-        alert('Invalid time input: Start date must be before end date')
+        alert('Invalid time input')
         return
       }
-      
       if (!intervalMs || end.getTime() - start.getTime() < intervalMs) {
-        alert('Invalid timeframe: Time range is too small for selected interval')
+        alert('Invalid timeframe')
         return
       }
 
@@ -131,7 +115,7 @@ const CreateChartQuizModal: React.FC<CreateChartQuizModalProps> = ({
       if (limit > 1000) {
         alert(`Will only render the first 1000 candles out of ${limit}`)
       }
-      
+      setCandlesFirstHalf((Math.min(limit, 1000) / 2).toString())
       const half = Math.floor(Math.min(limit, 1000) / 2)
       setCandlesFirstHalf(Math.max(1, Math.min(half, limit - 1)).toString())
 
@@ -146,19 +130,16 @@ const CreateChartQuizModal: React.FC<CreateChartQuizModalProps> = ({
       setCandles(data)
       setHasChanged(false)
     } catch (err: any) {
-      console.error('Error fetching chart data:', err)
-      alert(`Failed to fetch chart data: ${err.message}`)
-    } finally {
-      setIsLoading(false)
+      console.error(err.message)
+      alert('Failed to fetch chart data. Please try again.')
     }
   }
 
-  const handleSave = async () => {
+  async function handleSave() {
     if (!(tokens.accessToken && tokens.email)) return
-    if (isLoading) return
 
     if (hasChanged) {
-      alert('Please generate the chart first')
+      alert('Please generate the chart first before saving')
       return
     }
 
@@ -173,7 +154,7 @@ const CreateChartQuizModal: React.FC<CreateChartQuizModalProps> = ({
       )
     ) {
       alert(
-        `Not all properties are filled properly:${
+        `Please fill all required fields properly:${
           !TitleCheck(title) ? '\n• Title must be non-empty' : ''
         }${
           !DescriptionCheck(description)
@@ -190,49 +171,40 @@ const CreateChartQuizModal: React.FC<CreateChartQuizModalProps> = ({
       return
     }
 
-    setIsLoading(true)
-    try {
-      const data = {
-        title,
-        settings: {
-          timeframe: FormatIntervalLabel(timeframe),
-          pair: symbol,
-          startDate: FormatTime(startDate),
-          endDate: FormatTime(endDate),
-          answer,
-          points: +points,
-          itemsToShowFirst: +candlesFirstHalf,
-          hideChart: false,
-        },
-        candleData: candles,
-        description: description,
-        isActive,
-      }
+    const data = {
+      title,
+      settings: {
+        timeframe: FormatIntervalLabel(timeframe),
+        pair: symbol,
+        startDate: FormatTime(startDate),
+        endDate: FormatTime(endDate),
+        answer,
+        points: +points,
+        itemsToShowFirst: +candlesFirstHalf,
+        hideChart: false,
+      },
+      candleData: candles,
+      description: description,
+      isActive,
+    }
 
-      const trySubmit = async (accessToken: string): Promise<boolean> => {
-        const response = initialValue?.id
-          ? await UpdateSwipeTrade(initialValue.id, data, accessToken)
-          : await PostSwipeTrade(data, accessToken)
+    const trySubmit = async (accessToken: string): Promise<boolean> => {
+      const response = initialValue?.id
+        ? await UpdateSwipeTrade(initialValue.id, data, accessToken)
+        : await PostSwipeTrade(data, accessToken)
 
-        if (response.error) return false
+      if (response.error) return false
 
-        onClose(false)
-        return true
-      }
+      onClose(false)
+      return true
+    }
 
-      const success = await trySubmit(tokens.accessToken)
-      if (!success) {
-        await ReloginAndRetry(tokens.email, dispatch, trySubmit)
-      }
-    } catch (error) {
-      console.error('Error saving quiz:', error)
-      alert('Failed to save quiz. Please try again.')
-    } finally {
-      setIsLoading(false)
+    const success = await trySubmit(tokens.accessToken)
+    if (!success) {
+      await ReloginAndRetry(tokens.email, dispatch, trySubmit)
     }
   }
 
-  // Memoized update functions
   const updateText = useCallback(
     (newText: string) => {
       setDescription((prev) => ({
@@ -253,25 +225,25 @@ const CreateChartQuizModal: React.FC<CreateChartQuizModalProps> = ({
     setHasChanged(true)
   }, [])
 
-  const updateTimeFrame = useCallback((frame: string) => {
-    setTimeframe(frame)
+  const updateTimeFrame = useCallback((timeframe: string) => {
+    setTimeframe(timeframe)
     setHasChanged(true)
   }, [])
 
-  const updateSymbol = useCallback((sym: string) => {
-    setSymbol(sym)
+  const updateSymbol = useCallback((symbol: string) => {
+    setSymbol(symbol)
     setHasChanged(true)
   }, [])
 
   return (
-    <div className={styles.container}>
+    <div style={modalStyles.container}>
       <ChartModalHeader
         language={language}
         setLanguage={setLanguage}
         handleClose={handleClose}
       />
       
-      <div className={styles.content}>
+      <div style={modalStyles.content}>
         <TitleInputBlock
           title={title}
           setTitle={setTitle}
@@ -279,35 +251,55 @@ const CreateChartQuizModal: React.FC<CreateChartQuizModalProps> = ({
           setIsActive={setIsActive}
         />
 
-        <div className={styles.mainContent}>
-          <div className={styles.leftColumn}>
+        <div style={modalStyles.mainContent}>
+          <div style={modalStyles.leftPanel}>
             {checkDescription ? (
-              <DescriptionPreview text={description[language]} />
+              <div style={modalStyles.previewContainer}>
+                <div style={modalStyles.sectionHeader}>
+                  <h3 style={modalStyles.sectionTitle}>Description Preview</h3>
+                </div>
+                <DescriptionPreview text={description[language]} />
+              </div>
             ) : (
-              <div className={styles.chartSection}>
-                <CandlestickChart
-                  candles={candles}
-                  candlesFirstHalf={+candlesFirstHalf}
-                  showFullChart={showFullChart}
-                />
+              <div style={modalStyles.chartSection}>
+                <div style={modalStyles.sectionHeader}>
+                  <h3 style={modalStyles.sectionTitle}>Chart Configuration</h3>
+                  <div style={modalStyles.statusBadge}>
+                    {hasChanged ? (
+                      <span style={{ ...modalStyles.statusText, color: colors.red }}>
+                        ● Chart needs update
+                      </span>
+                    ) : (
+                      <span style={{ ...modalStyles.statusText, color: colors.green }}>
+                        ● Chart ready
+                      </span>
+                    )}
+                  </div>
+                </div>
                 
-                <div className={styles.controlsSection}>
+                <div style={modalStyles.chartContainer}>
+                  <CandlestickChart
+                    candles={candles}
+                    candlesFirstHalf={+candlesFirstHalf}
+                    showFullChart={showFullChart}
+                  />
+                </div>
+                
+                <div style={modalStyles.controlsGrid}>
                   <DatePickerBlock
                     startDate={startDate}
                     setStartDate={updateStartDate}
                     endDate={endDate}
                     setEndDate={updateEndDate}
                   />
-                  
                   <ChartParamsBlock
                     timeframe={timeframe}
                     setTimeframe={updateTimeFrame}
                     symbol={symbol}
                     setSymbol={updateSymbol}
-                    onRequest={generateChart}
+                    onRequest={bybitRequest}
                     hasChanged={hasChanged}
                   />
-                  
                   <AnswerPickerBlock
                     answer={answer}
                     setAnswer={setAnswer}
@@ -324,33 +316,144 @@ const CreateChartQuizModal: React.FC<CreateChartQuizModalProps> = ({
             )}
           </div>
           
-          <div className={styles.rightColumn}>
-            <DescriptionInput
-              value={description[language]}
-              onChange={updateText}
-            />
+          <div style={modalStyles.rightPanel}>
+            <div style={modalStyles.sectionHeader}>
+              <h3 style={modalStyles.sectionTitle}>Quiz Description</h3>
+            </div>
+            <div style={modalStyles.editorContainer}>
+              <DescriptionInput
+                value={description[language]}
+                onChange={updateText}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       <ChartModalFooter
         handleSave={handleSave}
-        handleCheckDescription={() => setCheckDescription(!checkDescription)}
-        disabled={hasChanged || isLoading}
+        handleCheckDescription={() => {
+          setCheckDescription(!checkDescription)
+        }}
+        disabled={hasChanged}
       />
-      
-      {isLoading && (
-        <div className={styles.loadingOverlay}>
-          <div className={styles.loadingSpinner}>
-            <div className={styles.spinner} />
-            <p className={styles.loadingText}>
-              {hasChanged ? 'Generating chart...' : 'Saving quiz...'}
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   )
+}
+
+const modalStyles: { [key: string]: CSSProperties } = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    maxHeight: '100%',
+    backgroundColor: colors.bg,
+    borderRadius: '16px',
+    overflow: 'hidden',
+    boxShadow: `0 20px 60px ${colors.black}40`,
+  },
+
+  content: {
+    flex: 1,
+    padding: '0 24px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px',
+    overflow: 'hidden',
+  },
+
+  mainContent: {
+    display: 'flex',
+    gap: '24px',
+    flex: 1,
+    minHeight: 0,
+  },
+
+  leftPanel: {
+    flex: 2,
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 0,
+  },
+
+  rightPanel: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 0,
+  },
+
+  sectionHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: '16px',
+    paddingBottom: '12px',
+    borderBottom: `2px solid ${colors.border}`,
+  },
+
+  sectionTitle: {
+    fontSize: '18px',
+    fontWeight: '600',
+    color: colors.white,
+    margin: 0,
+    letterSpacing: '-0.5px',
+  },
+
+  statusBadge: {
+    padding: '6px 12px',
+    borderRadius: '20px',
+    backgroundColor: colors.greyhard,
+    border: `1px solid ${colors.border}`,
+  },
+
+  statusText: {
+    fontSize: '12px',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+  },
+
+  chartSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    flex: 1,
+    minHeight: 0,
+  },
+
+  chartContainer: {
+    marginBottom: '20px',
+    padding: '16px',
+    backgroundColor: colors.greyhard,
+    borderRadius: '12px',
+    border: `1px solid ${colors.border}`,
+  },
+
+  controlsGrid: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+  },
+
+  previewContainer: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: colors.greyhard,
+    borderRadius: '12px',
+    border: `1px solid ${colors.border}`,
+    padding: '20px',
+  },
+
+  editorContainer: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: colors.greyhard,
+    borderRadius: '12px',
+    border: `1px solid ${colors.border}`,
+    overflow: 'hidden',
+  },
 }
 
 export default CreateChartQuizModal
