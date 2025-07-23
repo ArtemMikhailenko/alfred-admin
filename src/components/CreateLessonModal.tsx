@@ -629,7 +629,9 @@ const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
                     }}
                     initialValue={initialLessonValue.text[language]}
                     value={text[language]}
-                    onEditorChange={updateText}
+                    onEditorChange={(_, editor) => {
+                      updateText(editor.getContent({ format: 'html' }));
+                    }}
                     disabled={isLoading}
                     init={{
                       height: 400,
@@ -642,12 +644,13 @@ const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
                       plugins: [
                         'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
                         'preview', 'anchor', 'searchreplace', 'visualblocks', 'code',
-                        'fullscreen', 'insertdatetime', 'media', 'table', 'help', 'wordcount'
+                        'fullscreen', 'insertdatetime', 'media', 'table', 'help', 'wordcount',
+                        'textcolor', 'colorpicker'
                       ],
                       toolbar: 
                         'undo redo | blocks | bold italic forecolor | alignleft aligncenter ' +
                         'alignright alignjustify | bullist numlist outdent indent | ' +
-                        'removeformat | highlightList | backgroundColor | image | insertBlock | blockSettings | help | link | touchtext',
+                        'removeformat | highlightList | backcolor | image | insertBlock | blockSettings | help | link | touchtext',
                       content_style: `
                         body { font-family: Helvetica, Arial, sans-serif; font-size: 14px; }
                         .custom-block { background-color: #333439; border-radius: 10px; padding: 10px; }

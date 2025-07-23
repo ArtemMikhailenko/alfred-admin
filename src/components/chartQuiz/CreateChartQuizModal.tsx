@@ -492,8 +492,8 @@ const modalStyles: { [key: string]: CSSProperties } = {
     backgroundColor: colors.greyhard,
     borderRadius: '12px',
     border: `1px solid ${colors.border}`,
-    overflow: 'hidden',
-    minHeight: '400px', // Минимальная высота для редактора
+    // overflow: 'hidden',
+  
   },
 
   footer: {
