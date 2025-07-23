@@ -290,8 +290,22 @@ const CreateChartQuizModal = ({
                     showFullChart={showFullChart}
                   />
                 </div>
-                
-                <div style={modalStyles.controlsGrid}>
+                <div style={modalStyles.sectionHeader}>
+              <h3 style={modalStyles.sectionTitle}>Quiz Description</h3>
+            </div>
+            <div style={modalStyles.editorContainer}>
+              <DescriptionInput
+                value={description[language]}
+                onChange={updateText}
+              />
+            </div>
+               
+              </div>
+            )}
+          </div>
+          
+          <div style={modalStyles.rightPanel}>
+          <div style={modalStyles.controlsGrid}>
                   <div style={modalStyles.controlRow}>
                     <DatePickerBlock
                       startDate={startDate}
@@ -324,20 +338,7 @@ const CreateChartQuizModal = ({
                     />
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-          
-          <div style={modalStyles.rightPanel}>
-            <div style={modalStyles.sectionHeader}>
-              <h3 style={modalStyles.sectionTitle}>Quiz Description</h3>
-            </div>
-            <div style={modalStyles.editorContainer}>
-              <DescriptionInput
-                value={description[language]}
-                onChange={updateText}
-              />
-            </div>
+            
           </div>
         </div>
       </div>
