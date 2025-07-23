@@ -52,7 +52,7 @@ const headerStyles: { [key: string]: CSSProperties } = {
   container: {
     display: 'flex',
     alignItems: 'center',
-    padding: '16px 30px',
+    padding: '5px 30px',
     marginBottom: '16px',
     borderBottom: `2px solid ${colors.border}`,
     gap: '16px',
@@ -67,7 +67,7 @@ const headerStyles: { [key: string]: CSSProperties } = {
   },
 
   title: {
-    fontSize: '24px',
+    fontSize: '18px',
     fontWeight: '700',
     color: colors.white,
     margin: 0,

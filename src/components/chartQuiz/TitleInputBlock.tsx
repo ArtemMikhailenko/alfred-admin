@@ -77,8 +77,8 @@ const titleStyles: { [key: string]: CSSProperties } = {
     display: 'flex',
     alignItems: 'flex-end',
     gap: '24px',
-    marginBottom: '20px',
-    padding: '16px',
+    // marginBottom: '20px',
+    // padding: '16px',
     // backgroundColor: colors.greyhard,
     borderRadius: '12px',
     // border: `1px solid ${colors.border}`,
@@ -139,8 +139,8 @@ const titleStyles: { [key: string]: CSSProperties } = {
   },
 
   switch: {
-    width: '72px',
-    height: '40px',
+    width: '58px',
+    height: '30px',
     border: 'none',
     borderRadius: '20px',
     position: 'relative',
@@ -151,8 +151,8 @@ const titleStyles: { [key: string]: CSSProperties } = {
   },
 
   switchThumb: {
-    width: '32px',
-    height: '32px',
+    width: '22px',
+    height: '22px',
     backgroundColor: colors.white,
     borderRadius: '50%',
     position: 'absolute',

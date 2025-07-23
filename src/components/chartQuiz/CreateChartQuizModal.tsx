@@ -369,7 +369,7 @@ const modalStyles: { [key: string]: CSSProperties } = {
 
   header: {
     flexShrink: 0,
-    padding: '16px 24px 0',
+    padding: '10px 12px 0',
     borderBottom: `1px solid ${colors.border}`,
   },
 
