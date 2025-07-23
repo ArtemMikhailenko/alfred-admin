@@ -252,6 +252,10 @@ const CreateChartQuizModal = ({
             setTitle={setTitle}
             isActive={isActive}
             setIsActive={setIsActive}
+            symbol={symbol}
+            startDate={startDate}
+            endDate={endDate}
+            answer={answer}
           />
         </div>
 
@@ -361,7 +365,7 @@ const modalStyles: { [key: string]: CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     height: '100vh',
-    maxHeight: '100vh',
+    maxHeight: '95vh',
     backgroundColor: colors.bg,
     borderRadius: '16px',
     overflow: 'hidden',
@@ -370,7 +374,7 @@ const modalStyles: { [key: string]: CSSProperties } = {
 
   header: {
     flexShrink: 0,
-    padding: '10px 12px 0',
+    padding: '10px 12px 12px',
     borderBottom: `1px solid ${colors.border}`,
   },
 
@@ -391,8 +395,7 @@ const modalStyles: { [key: string]: CSSProperties } = {
   mainContent: {
     display: 'flex',
     gap: '24px',
-    flex: 1,
-    minHeight: '600px', // Минимальная высота для контента
+    minHeight: 'fit-content',
   },
 
   leftPanel: {
@@ -400,6 +403,7 @@ const modalStyles: { [key: string]: CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     minWidth: 0,
+    minHeight: 'fit-content',
   },
 
   rightPanel: {
@@ -407,6 +411,7 @@ const modalStyles: { [key: string]: CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     minWidth: 0,
+    minHeight: 'fit-content',
   },
 
   sectionHeader: {
@@ -444,8 +449,7 @@ const modalStyles: { [key: string]: CSSProperties } = {
   chartSection: {
     display: 'flex',
     flexDirection: 'column',
-    flex: 1,
-    minHeight: 0,
+    minHeight: 'fit-content',
   },
 
   chartContainer: {
@@ -455,7 +459,7 @@ const modalStyles: { [key: string]: CSSProperties } = {
     borderRadius: '12px',
     border: `1px solid ${colors.border}`,
     flexShrink: 0,
-    height: '400px', // Фиксированная высота чарта
+    height: '350px',
   },
 
   controlsGrid: {
@@ -471,13 +475,13 @@ const modalStyles: { [key: string]: CSSProperties } = {
   },
 
   previewContainer: {
-    flex: 1,
     display: 'flex',
     flexDirection: 'column',
     backgroundColor: colors.greyhard,
     borderRadius: '12px',
     border: `1px solid ${colors.border}`,
     overflow: 'hidden',
+    minHeight: '400px',
   },
 
   previewContent: {
@@ -487,20 +491,19 @@ const modalStyles: { [key: string]: CSSProperties } = {
   },
 
   editorContainer: {
-    flex: 1,
     display: 'flex',
     flexDirection: 'column',
     backgroundColor: colors.greyhard,
     borderRadius: '12px',
     border: `1px solid ${colors.border}`,
-    // overflow: 'hidden',
-  
+    minHeight: '200px',
   },
 
   footer: {
     flexShrink: 0,
-    padding: '0 24px 16px',
+    padding: '16px 24px',
     borderTop: `1px solid ${colors.border}`,
+    backgroundColor: colors.bg,
   },
 }
 

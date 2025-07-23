@@ -413,9 +413,7 @@ const CourseDetailScreen: React.FC<CourseDetailScreenProps> = ({
                             <Edit size={16} />
                           </button>
                           
-                          <button className={`${styles.actionButton} ${styles.danger}`}>
-                            <Trash2 size={16} />
-                          </button>
+                         
                         </div>
                       </div>
                     </div>
