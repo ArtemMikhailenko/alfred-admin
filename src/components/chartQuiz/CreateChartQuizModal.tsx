@@ -237,19 +237,23 @@ const CreateChartQuizModal = ({
 
   return (
     <div style={modalStyles.container}>
-      <ChartModalHeader
-        language={language}
-        setLanguage={setLanguage}
-        handleClose={handleClose}
-      />
-      
-      <div style={modalStyles.content}>
-        <TitleInputBlock
-          title={title}
-          setTitle={setTitle}
-          isActive={isActive}
-          setIsActive={setIsActive}
+      <div style={modalStyles.header}>
+        <ChartModalHeader
+          language={language}
+          setLanguage={setLanguage}
+          handleClose={handleClose}
         />
+      </div>
+      
+      <div style={modalStyles.scrollableContent}>
+        <div style={modalStyles.titleSection}>
+          <TitleInputBlock
+            title={title}
+            setTitle={setTitle}
+            isActive={isActive}
+            setIsActive={setIsActive}
+          />
+        </div>
 
         <div style={modalStyles.mainContent}>
           <div style={modalStyles.leftPanel}>
@@ -258,7 +262,9 @@ const CreateChartQuizModal = ({
                 <div style={modalStyles.sectionHeader}>
                   <h3 style={modalStyles.sectionTitle}>Description Preview</h3>
                 </div>
-                <DescriptionPreview text={description[language]} />
+                <div style={modalStyles.previewContent}>
+                  <DescriptionPreview text={description[language]} />
+                </div>
               </div>
             ) : (
               <div style={modalStyles.chartSection}>
@@ -286,31 +292,37 @@ const CreateChartQuizModal = ({
                 </div>
                 
                 <div style={modalStyles.controlsGrid}>
-                  <DatePickerBlock
-                    startDate={startDate}
-                    setStartDate={updateStartDate}
-                    endDate={endDate}
-                    setEndDate={updateEndDate}
-                  />
-                  <ChartParamsBlock
-                    timeframe={timeframe}
-                    setTimeframe={updateTimeFrame}
-                    symbol={symbol}
-                    setSymbol={updateSymbol}
-                    onRequest={bybitRequest}
-                    hasChanged={hasChanged}
-                  />
-                  <AnswerPickerBlock
-                    answer={answer}
-                    setAnswer={setAnswer}
-                    candlesFirstHalf={candlesFirstHalf}
-                    setCandlesFirstHalf={setCandlesFirstHalf}
-                    candlesAmount={candles.length}
-                    showFullChart={showFullChart}
-                    toggleShowFullChart={() => setShowFullChart(!showFullChart)}
-                    points={points}
-                    setPoints={setPoints}
-                  />
+                  <div style={modalStyles.controlRow}>
+                    <DatePickerBlock
+                      startDate={startDate}
+                      setStartDate={updateStartDate}
+                      endDate={endDate}
+                      setEndDate={updateEndDate}
+                    />
+                  </div>
+                  <div style={modalStyles.controlRow}>
+                    <ChartParamsBlock
+                      timeframe={timeframe}
+                      setTimeframe={updateTimeFrame}
+                      symbol={symbol}
+                      setSymbol={updateSymbol}
+                      onRequest={bybitRequest}
+                      hasChanged={hasChanged}
+                    />
+                  </div>
+                  <div style={modalStyles.controlRow}>
+                    <AnswerPickerBlock
+                      answer={answer}
+                      setAnswer={setAnswer}
+                      candlesFirstHalf={candlesFirstHalf}
+                      setCandlesFirstHalf={setCandlesFirstHalf}
+                      candlesAmount={candles.length}
+                      showFullChart={showFullChart}
+                      toggleShowFullChart={() => setShowFullChart(!showFullChart)}
+                      points={points}
+                      setPoints={setPoints}
+                    />
+                  </div>
                 </div>
               </div>
             )}
@@ -330,13 +342,15 @@ const CreateChartQuizModal = ({
         </div>
       </div>
 
-      <ChartModalFooter
-        handleSave={handleSave}
-        handleCheckDescription={() => {
-          setCheckDescription(!checkDescription)
-        }}
-        disabled={hasChanged}
-      />
+      <div style={modalStyles.footer}>
+        <ChartModalFooter
+          handleSave={handleSave}
+          handleCheckDescription={() => {
+            setCheckDescription(!checkDescription)
+          }}
+          disabled={hasChanged}
+        />
+      </div>
     </div>
   )
 }
@@ -345,42 +359,53 @@ const modalStyles: { [key: string]: CSSProperties } = {
   container: {
     display: 'flex',
     flexDirection: 'column',
-    height: '100%',
-    maxHeight: '100%',
+    height: '100vh',
+    maxHeight: '100vh',
     backgroundColor: colors.bg,
     borderRadius: '16px',
     overflow: 'hidden',
     boxShadow: `0 20px 60px ${colors.black}40`,
   },
 
-  content: {
+  header: {
+    flexShrink: 0,
+    padding: '16px 24px 0',
+    borderBottom: `1px solid ${colors.border}`,
+  },
+
+  scrollableContent: {
     flex: 1,
-    padding: '0 24px',
+    overflow: 'auto',
+    padding: '20px 24px',
     display: 'flex',
     flexDirection: 'column',
     gap: '20px',
-    overflow: 'hidden',
+    minHeight: 0,
+  },
+
+  titleSection: {
+    flexShrink: 0,
   },
 
   mainContent: {
     display: 'flex',
     gap: '24px',
     flex: 1,
-    minHeight: 0,
+    minHeight: '600px', // Минимальная высота для контента
   },
 
   leftPanel: {
     flex: 2,
     display: 'flex',
     flexDirection: 'column',
-    minHeight: 0,
+    minWidth: 0,
   },
 
   rightPanel: {
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    minHeight: 0,
+    minWidth: 0,
   },
 
   sectionHeader: {
@@ -390,6 +415,7 @@ const modalStyles: { [key: string]: CSSProperties } = {
     marginBottom: '16px',
     paddingBottom: '12px',
     borderBottom: `2px solid ${colors.border}`,
+    flexShrink: 0,
   },
 
   sectionTitle: {
@@ -427,12 +453,20 @@ const modalStyles: { [key: string]: CSSProperties } = {
     backgroundColor: colors.greyhard,
     borderRadius: '12px',
     border: `1px solid ${colors.border}`,
+    flexShrink: 0,
+    height: '400px', // Фиксированная высота чарта
   },
 
   controlsGrid: {
     display: 'flex',
     flexDirection: 'column',
     gap: '16px',
+    flexShrink: 0,
+  },
+
+  controlRow: {
+    display: 'flex',
+    flexDirection: 'column',
   },
 
   previewContainer: {
@@ -442,6 +476,12 @@ const modalStyles: { [key: string]: CSSProperties } = {
     backgroundColor: colors.greyhard,
     borderRadius: '12px',
     border: `1px solid ${colors.border}`,
+    overflow: 'hidden',
+  },
+
+  previewContent: {
+    flex: 1,
+    overflow: 'auto',
     padding: '20px',
   },
 
@@ -453,6 +493,13 @@ const modalStyles: { [key: string]: CSSProperties } = {
     borderRadius: '12px',
     border: `1px solid ${colors.border}`,
     overflow: 'hidden',
+    minHeight: '400px', // Минимальная высота для редактора
+  },
+
+  footer: {
+    flexShrink: 0,
+    padding: '0 24px 16px',
+    borderTop: `1px solid ${colors.border}`,
   },
 }
 
