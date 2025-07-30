@@ -655,26 +655,74 @@ const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
                       menubar: true,
                       placeholder: 'Enter lesson content...',
                       resize: true,
+                      
+                      // ДОБАВЛЕНО: принудительная очистка стилей при вставке
+                      paste_as_text: false,
+                      paste_retain_style_properties: 'color font-size font-family background-color',
+                      paste_remove_styles_if_webkit: true,
+                      
+                      // ДОБАВЛЕНО: настройки для корректного отображения
+                      force_br_newlines: false,
+                      force_p_newlines: true,
+                      forced_root_block: 'p',
+                      
+                      // ДОБАВЛЕНО: валидация элементов
+                      verify_html: true,
+                      cleanup: true,
+                      
                       plugins: [
                         'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
                         'preview', 'anchor', 'searchreplace', 'visualblocks', 'code',
                         'fullscreen', 'insertdatetime', 'media', 'table', 'help', 'wordcount',
                         'textcolor', 'colorpicker'
                       ],
+                      
                       toolbar: 
                         'undo redo | blocks | bold italic forecolor | alignleft aligncenter ' +
                         'alignright alignjustify | bullist numlist outdent indent | ' +
-                        'removeformat | highlightList | backcolor | image | insertBlock | blockSettings | help | link | touchtext',
+                        'removeformat | highlightList | backcolor | image | insertBlock | blockSettings | help | link | touchtext | code',
+                      
+                      // ИСПРАВЛЕНО: улучшенные стили контента
                       content_style: `
-                        body { font-family: Helvetica, Arial, sans-serif; font-size: 14px; }
-                        .custom-block { background-color: #333439; border-radius: 10px; padding: 10px; }
+                        body { 
+                          font-family: Helvetica, Arial, sans-serif; 
+                          font-size: 14px; 
+                          font-weight: normal;
+                          line-height: 1.6;
+                          color: #ffffff;
+                          background-color: #2c2c2c;
+                        }
+                        
+                        /* Принудительно сбрасываем стили для всех элементов */
+                        * {
+                          font-weight: inherit;
+                        }
+                        
+                        /* Явно определяем стили для жирного текста */
+                        strong, b, .bold {
+                          font-weight: bold !important;
+                        }
+                        
+                        /* Убеждаемся что обычный текст не жирный */
+                        p, div, span:not(.touch-text):not(.bold) {
+                          font-weight: normal !important;
+                        }
+                        
+                        .custom-block { 
+                          background-color: #333439; 
+                          border-radius: 10px; 
+                          padding: 10px;
+                          font-weight: normal;
+                        }
+                        
                         .touch-text { 
-                          color: #F0B90B; 
+                          color: #F0B90B !important; 
                           text-decoration: none; 
                           cursor: pointer; 
                           position: relative; 
-                          font-weight: bold; 
+                          font-weight: bold !important; 
                         }
+                        
                         .touch-text:hover::after {
                           content: attr(data-description);
                           position: absolute;
@@ -686,8 +734,151 @@ const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
                           left: 0;
                           white-space: nowrap;
                           font-size: 12px;
+                          font-weight: normal;
+                        }
+                        
+                        /* Исправляем стили для списков */
+                        ul, ol {
+                          font-weight: normal;
+                        }
+                        
+                        li {
+                          font-weight: normal;
+                        }
+                        
+                        /* Заголовки */
+                        h1, h2, h3, h4, h5, h6 {
+                          font-weight: bold;
+                          color: #ffffff;
                         }
                       `,
+                      
+                      // ДОБАВЛЕНО: обработчики событий для контроля стилей
+                      setup: (editor: any) => {
+                        // Существующие кнопки...
+                        editor.ui.registry.addButton('insertBlock', {
+                          text: 'Add Block',
+                          onAction: () => addNewBlock(editor),
+                        })
+                    
+                        editor.ui.registry.addSplitButton('highlightList', {
+                          text: 'List Color',
+                          icon: 'forecolor',
+                          onAction: () => {
+                            const color = prompt('Choose color (e.g., #FF0000 or red):')
+                            if (color) {
+                              editor.formatter.apply('highlightList', { value: color })
+                            }
+                          },
+                          fetch: (callback: any) => {
+                            const colors = [
+                              { type: 'choiceitem', text: 'Red', value: '#FF0000' },
+                              { type: 'choiceitem', text: 'Blue', value: '#0000FF' },
+                              { type: 'choiceitem', text: 'Green', value: '#00FF00' },
+                              { type: 'choiceitem', text: 'Orange', value: '#FFA500' },
+                            ]
+                            callback(colors)
+                          },
+                          onItemAction: (_: any, value: string) => {
+                            editor.formatter.apply('highlightList', { value })
+                          },
+                        })
+                    
+                        editor.formatter.register('highlightList', {
+                          inline: 'span',
+                          selector: 'li',
+                          styles: { color: '%value' },
+                        })
+                    
+                        editor.ui.registry.addButton('blockSettings', {
+                          text: 'Edit Block',
+                          onAction: () => {
+                            if (activeBlockId) {
+                              updateBlockStyle()
+                            }
+                          },
+                        })
+                    
+                        editor.ui.registry.addButton('touchtext', {
+                          text: 'Touch Text',
+                          onAction: () => {
+                            const selectedText = editor.selection.getContent({ format: 'text' })
+                            if (!selectedText) {
+                              alert('Please select a word or phrase to add a description.')
+                              return
+                            }
+                    
+                            const description = prompt('Enter description for this word:')
+                            if (!description) return
+                    
+                            const textTag = `<span class="touch-text" data-description="${description}">${selectedText}</span>`
+                            editor.insertContent(textTag)
+                          },
+                        })
+                        
+                        // ДОБАВЛЕНО: событие для очистки нежелательных стилей
+                        editor.on('PastePreProcess', (e: any) => {
+                          // Удаляем нежелательные CSS стили из вставляемого контента
+                          e.content = e.content.replace(/font-weight:\s*bold/gi, '')
+                          e.content = e.content.replace(/font-weight:\s*\d+/gi, '')
+                        })
+                        
+                        // ДОБАВЛЕНО: событие для контроля изменений контента
+                        editor.on('NodeChange', () => {
+                          // Проверяем и исправляем стили при изменении узлов
+                          const body = editor.getBody()
+                          const elements = body.querySelectorAll('*')
+                          
+                          elements.forEach((el: any) => {
+                            // Если элемент не должен быть жирным, убираем жирность
+                            if (!el.matches('strong, b, .touch-text, h1, h2, h3, h4, h5, h6')) {
+                              const computedStyle = window.getComputedStyle(el)
+                              if (computedStyle.fontWeight === 'bold' || computedStyle.fontWeight === '700') {
+                                el.style.fontWeight = 'normal'
+                              }
+                            }
+                          })
+                        })
+                        
+                        // ДОБАВЛЕНО: кнопка для исправления стилей
+                        editor.ui.registry.addButton('fixStyles', {
+                          text: 'Fix Styles',
+                          tooltip: 'Fix bold text display issues',
+                          onAction: () => {
+                            const content = editor.getContent()
+                            // Удаляем инлайн стили font-weight, кроме тех что в классах
+                            const cleanContent = content
+                              .replace(/style="[^"]*font-weight:[^;"]*;?[^"]*"/gi, (match:any) => {
+                                return match.replace(/font-weight:[^;"]*;?/gi, '')
+                              })
+                              .replace(/style=""/gi, '')
+                            
+                            editor.setContent(cleanContent)
+                            editor.undoManager.add()
+                          },
+                        })
+                        
+                        // Добавляем кнопку в тулбар
+                        const currentToolbar = editor.settings.toolbar
+                        editor.settings.toolbar = currentToolbar + ' | fixStyles'
+                      },
+                      
+                      // ДОБАВЛЕНО: дополнительные настройки форматирования
+                      formats: {
+                        bold: { inline: 'strong' },
+                        italic: { inline: 'em' },
+                        underline: { inline: 'u' },
+                        strikethrough: { inline: 'del' }
+                      },
+                      
+                      // ДОБАВЛЕНО: настройки валидации HTML
+                      valid_elements: '*[*]',
+                      valid_styles: {
+                        '*': 'color,background-color,font-size,font-family,text-align,text-decoration,border,border-radius,padding,margin,width,height'
+                      },
+                      
+                      // ДОБАВЛЕНО: автоматическая очистка при получении контента
+                      setup_content_css: false,
                     }}
                   />
                 </div>
