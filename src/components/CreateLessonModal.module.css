@@ -427,14 +427,8 @@
   
   /* Quiz Section */
   .quizSection {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 16px;
-    color: #9e9a9b;
+    width: 100%;
+    height: 100%;
   }
   
   .quizSection h3 {

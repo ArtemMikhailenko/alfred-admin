@@ -41,6 +41,8 @@ import {
 import { PostLesson, UpdateLesson } from '../actions/actions'
 import { RootState } from '../redux'
 import { clearTokens } from '../redux/tokens'
+// Импортируем компонент для создания квизов
+import QuizCreationBlock from './quiz/QuizCreationBlock'
 import styles from './CreateLessonModal.module.css'
 
 interface CreateLessonModalProps {
@@ -68,13 +70,18 @@ const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
   const [banner, setBanner] = useState<string | File | null>(initialLessonValue.banner)
   const [avatar, setAvatar] = useState<string | File | null>(initialLessonValue.avatar)
 
-  // Content State
+  // Content State - ИСПРАВЛЕНО: инициализируем quiz правильно
   const [name, setName] = useState<LessonWithLanguages['name']>(initialLessonValue.name)
   const [motivation, setMotivation] = useState<LessonWithLanguages['motivation']>(initialLessonValue.motivation)
   const [comment, setComment] = useState<LessonWithLanguages['comment']>(initialLessonValue.comment)
   const [number, setNumber] = useState(initialLessonValue.number)
   const [text, setText] = useState<LessonWithLanguages['text']>(initialLessonValue.text)
-  const [quiz, setQuiz] = useState<LessonWithLanguages['quiz']>(initialLessonValue.quiz)
+  // ИСПРАВЛЕНО: правильная инициализация квиза
+  const [quiz, setQuiz] = useState<Quiz[]>(
+    Array.isArray(initialLessonValue.quiz) && initialLessonValue.quiz.length > 0 
+      ? initialLessonValue.quiz.filter(q => q !== null) as Quiz[]
+      : []
+  )
 
   const editorRef = useRef<any>(null)
   const bannerFileInput = useRef<HTMLInputElement>(null)
@@ -160,6 +167,7 @@ const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
       formData.append('name', JSON.stringify(name))
       formData.append('text', JSON.stringify(text))
       formData.append('motivation', JSON.stringify(motivation))
+      // ИСПРАВЛЕНО: правильно сериализуем квиз
       formData.append('quiz', JSON.stringify(quiz))
       formData.append('banner', banner as File)
       formData.append('avatar', avatar as File)
@@ -188,7 +196,7 @@ const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
   const handleClose = () => {
     const hasChanges = Object.values(name).some(n => n.trim()) || 
                       Object.values(text).some(t => t.trim()) ||
-                      banner || avatar
+                      banner || avatar || quiz.length > 0
     
     if (hasChanges) {
       const confirmClose = window.confirm(
@@ -230,7 +238,8 @@ const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
           setText(json.text || json.content || languagesObjString)
           setComment(json.comment || languagesObjString)
           setMotivation(json.motivation || languagesObjString)
-          setQuiz(json.quiz || languagesObjArray)
+          // ИСПРАВЛЕНО: правильно обрабатываем квиз из JSON
+          setQuiz(Array.isArray(json.quiz) ? json.quiz.filter((q: null) => q !== null) : [])
         } catch (error) {
           alert('Invalid JSON file format')
         }
@@ -275,6 +284,11 @@ const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
   const updateText = useCallback((newText: string) => {
     setText(prev => ({ ...prev, [language]: newText }))
   }, [language])
+
+  // ДОБАВЛЕНО: функция для обновления квиза
+  const updateQuiz = useCallback((newQuiz: Quiz[]) => {
+    setQuiz(newQuiz)
+  }, [])
 
   const getLanguageCompletionStatus = useCallback((lang: Language) => {
     const hasName = name[lang]?.trim().length > 0
@@ -361,7 +375,7 @@ const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
               className={`${styles.tabButton} ${page === 'quiz' ? styles.active : ''}`}
             >
               <HelpCircle size={16} />
-              Quiz
+              Quiz ({quiz.length})
             </button>
           </div>
 
@@ -634,7 +648,7 @@ const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
                     }}
                     disabled={isLoading}
                     init={{
-                      height: 400,
+                      height: 800,
                       skin: 'oxide-dark',
                       content_css: 'dark',
                       directionality: 'ltr',
@@ -681,8 +695,12 @@ const CreateLessonModal: React.FC<CreateLessonModalProps> = ({
             </>
           ) : (
             <div className={styles.quizSection}>
-              <h3>Quiz Creation</h3>
-              <p>Quiz creation interface will be implemented here</p>
+              {/* ИСПРАВЛЕНО: Добавлен интерфейс для создания квизов */}
+              <QuizCreationBlock
+                quiz={quiz}
+                setQuiz={updateQuiz}
+                language={language}
+              />
             </div>
           )}
         </div>
